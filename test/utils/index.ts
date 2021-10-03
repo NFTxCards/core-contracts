@@ -14,31 +14,45 @@ export function generateAddress() {
   )
 }
 
-export function generateSendParams(amount: number): { id: number; addr: string }[] {
-  const _recipient = []
+export function getRSVFromSign(signMessage: string) {
+  const signature = signMessage.substring(2)
 
-  for (let i = 0; i < amount; i++) {
-    _recipient.push({
-      addr: generateAddress(),
-      id: i + 1,
-    })
+  const r = '0x' + signature.substring(0, 64)
+  const s = '0x' + signature.substring(64, 128)
+  const v = parseInt(signature.substring(128, 130), 16)
+  return {
+    r, s, v
   }
-
-  return _recipient
 }
 
-export function generateSendParams1155(amount: number) {
-  const _recipient = []
+export async function getVerifyMessageParams(verifyingContract: string, sender: string) {
+  const network = await ethers.provider.getNetwork()
 
-  for (let i = 0; i < amount; i++) {
-    _recipient.push({
-      addr: generateAddress(),
-      id: i + 1,
-      amount: 1,
-    })
+  return {
+    types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
+      verify: [
+        { name: 'sender', type: 'address' },
+        { name: 'deadline', type: 'uint' },
+      ],
+    },
+    primaryType: 'verify',
+    domain: {
+      name: 'NFTxCards',
+      version: '1',
+      chainId: network.chainId,
+      verifyingContract,
+    },
+    message: {
+      sender,
+      deadline: parseInt(String((Date.now() + 1000 * 60) / 1000)), // add 60 sec
+    },
   }
-
-  return _recipient
 }
 
 /**
@@ -56,6 +70,22 @@ export const advanceTime = async (sec: number) => {
 
 export const setTime = async (timestamp: number) => {
   await ethers.provider.send('evm_setNextBlockTimestamp', [timestamp])
+}
+
+export const increaseTime = async (timestamp: number) => {
+  await ethers.provider.send('evm_increaseTime', [timestamp])
+}
+
+export const mine = async () => {
+  return await ethers.provider.send('evm_mine', [])
+}
+
+export const mineBlocks = async (total: number) => {
+  const array = new Array(total)
+
+  for await (const index of array) {
+    await mine()
+  }
 }
 
 export const getSignerFromAddress = async (address: string) => {
