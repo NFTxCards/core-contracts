@@ -1,7 +1,6 @@
-// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.7.0;
 
-library LibNativeOrder {
+library LibOrder {
 
   uint256 private constant _ORDER_TYPEHASH =
   0xce918627cb55462ddbb85e73de69a8b322f2bc88f4507c52fcad6d4c33c29d49;

@@ -5,18 +5,19 @@ pragma abicoder v2;
 import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./lib/LibNativeOrder.sol";
-import "./lib/LibNativeOrdersStorage.sol";
+import "./lib/LibOrder.sol";
+import "./lib/LibOrdersStorage.sol";
 
 contract Exchange {
-  event CreateOrder(address indexed from, bytes32 orderHash, LibNativeOrder.Order indexed order);
+  event CreateOrder(address indexed from, bytes32 orderHash, LibOrder.Order order);
 
-  function createOrder(LibNativeOrder.NewOrder memory _order) public {
+  function createOrder(LibOrder.NewOrder memory _order) public {
     // TODO check approve
     require(IERC721(_order.token).ownerOf(_order.tokenId) == msg.sender, "Only owner token can create order");
 
-    LibNativeOrder.Order memory order = LibNativeOrder.Order({
+    LibOrder.Order memory order = LibOrder.Order({
       maker: msg.sender,
       token: _order.token,
       basePrice: _order.price,
@@ -28,14 +29,14 @@ contract Exchange {
 
     bytes32 orderHash = getOrderHash(order);
 
-    LibNativeOrdersStorage.Storage storage stor = LibNativeOrdersStorage.getStorage();
+    LibOrdersStorage.Storage storage stor = LibOrdersStorage.getStorage();
 
     stor.orders[orderHash] = order;
     emit CreateOrder(msg.sender, orderHash, order);
   }
 
-  function fillOrder(LibNativeOrder.Order memory _order) public payable {
-    LibNativeOrder.Order memory order = getOrder(_order);
+  function fillOrder(LibOrder.Order memory _order) public payable {
+    LibOrder.Order memory order = getOrder(_order);
 
     require(msg.value >= order.basePrice, "Not enough money");
 
@@ -45,33 +46,33 @@ contract Exchange {
     removeOrder(order);
   }
 
-  function getOrder(LibNativeOrder.Order memory _order) public view returns (LibNativeOrder.Order memory order) {
+  function getOrder(LibOrder.Order memory _order) public view returns (LibOrder.Order memory order) {
     bytes32 orderHash = getOrderHash(_order);
 
-    LibNativeOrdersStorage.Storage storage stor = LibNativeOrdersStorage.getStorage();
+    LibOrdersStorage.Storage storage stor = LibOrdersStorage.getStorage();
 
     return stor.orders[orderHash];
   }
 
-  function getOrderFromHash(bytes32 _orderHash) public view returns (LibNativeOrder.Order memory order) {
-    LibNativeOrdersStorage.Storage storage stor = LibNativeOrdersStorage.getStorage();
+  function getOrderFromHash(bytes32 _orderHash) public view returns (LibOrder.Order memory order) {
+    LibOrdersStorage.Storage storage stor = LibOrdersStorage.getStorage();
 
     return stor.orders[_orderHash];
   }
 
-  function getOrderHash(LibNativeOrder.Order memory order) public pure returns (bytes32 orderHash) {
+  function getOrderHash(LibOrder.Order memory order) public pure returns (bytes32 orderHash) {
     // TODO implement EIP712
-    return LibNativeOrder.getOrderStructHash(order);
+    return LibOrder.getOrderStructHash(order);
   }
 
-  function removeOrder(LibNativeOrder.Order memory _order) public {
+  function removeOrder(LibOrder.Order memory _order) public {
     bytes32 orderHash = getOrderHash(_order);
 
     address tokenOwner = IERC721(_order.token).ownerOf(_order.tokenId);
 
     require(_order.maker == msg.sender || tokenOwner == msg.sender, "Only owner has be remove order");
 
-    LibNativeOrdersStorage.Storage storage stor = LibNativeOrdersStorage.getStorage();
+    LibOrdersStorage.Storage storage stor = LibOrdersStorage.getStorage();
 
     delete stor.orders[orderHash];
   }

@@ -59,7 +59,7 @@ describe('Exchange contract', function () {
       const senderBalanceBefore = await ethers.provider.getBalance(sender.address)
 
       // @ts-ignore
-      const result = await auction.callStatic.getOrderFromHash(order.events[0].data)
+      const result = await auction.callStatic.getOrderFromHash(order.events[0].args.orderHash)
 
       const recipientContract = auction.connect(recipient)
       await recipientContract.fillOrder(result, {
@@ -118,7 +118,7 @@ describe('Exchange contract', function () {
       const order = await receipt.wait()
 
       // @ts-ignore
-      const result = await auction.callStatic.getOrderFromHash(order.events[0].data)
+      const result = await auction.callStatic.getOrderFromHash(order.events[0].args.orderHash)
 
       let assertReason = ''
 

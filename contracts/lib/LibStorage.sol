@@ -13,7 +13,8 @@ library LibStorage {
   ///      WARNING: APPEND-ONLY.
   enum StorageId {
     Ownable,
-    NativeOrders
+    Orders,
+    Bids
   }
 
   /// @dev Get the storage slot given a storage ID. We assign unique, well-spaced

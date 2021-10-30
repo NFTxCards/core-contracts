@@ -38,7 +38,7 @@ contract Verifier {
     );
   }
 
-  function hashDomain() private returns (bytes32) {
+  function hashDomain() private view returns (bytes32) {
     uint chainId;
 
     assembly {
