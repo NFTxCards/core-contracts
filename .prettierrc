@@ -1,20 +1,21 @@
 {
-  "singleQuote": true,
-  "trailingComma": "all",
-  "bracketSpacing": true,
-  "semi": false,
-  "printWidth": 110,
-  "overrides": [
-    {
-      "files": "*.sol",
-      "options": {
-        "printWidth": 130,
-        "tabWidth": 2,
-        "useTabs": false,
-        "singleQuote": false,
-        "bracketSpacing": false,
-        "explicitTypes": "always"
-      }
-    }
-  ]
+    "singleQuote": false,
+    "tabWidth": 4,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "semi": true,
+    "printWidth": 100,
+    "overrides": [
+        {
+            "files": "*.sol",
+            "options": {
+                "printWidth": 100,
+                "tabWidth": 4,
+                "useTabs": false,
+                "singleQuote": false,
+                "bracketSpacing": false,
+                "explicitTypes": "always"
+            }
+        }
+    ]
 }

@@ -1,96 +1,160 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
-pragma abicoder v2;
-
-import "hardhat/console.sol";
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
-
-import "./lib/LibBid.sol";
-import "./lib/LibBidsStorage.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract Market {
-  using SafeERC20 for IERC20;
-  using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
-  event BidCreated(uint256 indexed tokenId, LibBid.Bid bid);
-  event BidRemoved(uint256 indexed tokenId, LibBid.Bid bid);
-  event BidFinalized(uint256 indexed tokenId, LibBid.Bid bid);
+    /// @notice Contract name
+    string public constant NAME = "NFTxCards Market";
 
-  function createBid(uint256 _tokenId, LibBid.Bid memory _bid, address _spender) public {
-    require(_bid.bidder != address(0), "Bidder cannot be 0 address");
-    require(_bid.amount != 0, "Cannot bid amount of 0");
-    require(_bid.currency != address(0), "Bid currency cannot be 0 address");
-    require(_bid.token != address(0), "Bid token cannot be 0 address");
-    require(_bid.expiry > block.timestamp, "Bid expiry cannot lower current date");
+    /// @notice Contract version
+    string public constant VERSION = "1";
 
-    LibBidsStorage.Storage storage stor = LibBidsStorage.getStorage();
-    LibBid.Bid storage existingBid = stor.tokenBidders[_tokenId][_bid.bidder];
+    /// @notice Name hash for EIP712
+    bytes32 private constant NAME_HASH = keccak256("NFTxCards Market");
 
-    if (existingBid.amount > 0) {
-      removeBid(_tokenId, _bid.bidder);
+    /// @notice Version hash for EIP712
+    bytes32 private constant VERSION_HASH = keccak256("1");
+
+    /// @notice Contract domain hash for EIP712
+    bytes32 private constant EIP712_DOMAIN_TYPEHASH =
+        keccak256(
+            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+        );
+
+    /// @notice Bid action hash for EIP712
+    bytes32 private constant BID_TYPEHASH =
+        keccak256(
+            "Bid(address currency,uint256 amount,address bidder,address token,uint256 tokenId,uint64 expiry,uint8 nonce)"
+        );
+
+    struct Bid {
+        IERC20 currency;
+        uint256 amount;
+        address bidder;
+        IERC721 token;
+        uint256 tokenId;
+        uint64 expiry;
+        uint8 nonce;
     }
 
-    IERC20 token = IERC20(_bid.currency);
-    require(token.balanceOf(_bid.bidder) >= _bid.amount, "Not enough money");
+    enum BidState {
+        None,
+        Cancelled,
+        Accepted
+    }
 
-    uint256 beforeBalance = token.balanceOf(address(this));
-    token.safeTransferFrom(_spender, address(this), _bid.amount);
-    uint256 afterBalance = token.balanceOf(address(this));
+    /// @notice Mapping of bid hashes to their states
+    mapping(bytes32 => BidState) public bidStates;
 
-    LibBid.Bid memory bid = LibBid.Bid({
-      amount: afterBalance.sub(beforeBalance),
-      currency: _bid.currency,
-      bidder: _bid.bidder,
-      token: _bid.token,
-      expiry: _bid.expiry
-    });
+    // EVENTS
 
-    stor.tokenBidders[_tokenId][_bid.bidder] = bid;
+    /// @notice Event emitted when some bid is cancelled
+    event BidCancelled(Bid bid);
 
-    emit BidCreated(_tokenId, bid);
-  }
+    /// @notice Event emitted when some bid is accepted
+    event BidAccepted(Bid bid, address acceptor);
 
-  function removeBid(uint256 _tokenId, address _bidder) public {
-    LibBidsStorage.Storage storage stor = LibBidsStorage.getStorage();
-    LibBid.Bid storage bid = stor.tokenBidders[_tokenId][_bidder];
+    // PUBLIC FUNCTIONS
 
-    require(bid.amount > 0, "Market: cannot remove bid amount of 0");
+    /**
+     * @notice Function is used to cancel a bid
+     * @param bid Bid object describing bid
+     */
+    function cancelBid(Bid memory bid) external {
+        require(bid.bidder == msg.sender, "Market: can not cancel other bidder");
 
-    IERC20 token = IERC20(bid.currency);
+        bytes32 bidHash = keccak256(abi.encode(bid));
+        require(bidStates[bidHash] == BidState.None, "Market: bid cancelled or executed");
 
-    emit BidRemoved(_tokenId, bid);
-    delete stor.tokenBidders[_tokenId][_bidder];
-    token.safeTransfer(_bidder, bid.amount);
-  }
+        bidStates[bidHash] = BidState.Cancelled;
 
-  function acceptBid(uint256 _tokenId, LibBid.Bid calldata _expectedBid) external {
-    LibBidsStorage.Storage storage stor = LibBidsStorage.getStorage();
-    LibBid.Bid memory bid = stor.tokenBidders[_tokenId][_expectedBid.bidder];
+        emit BidCancelled(bid);
+    }
 
-    require(bid.amount > 0, "Cannot accept bid of 0");
-    require(
-      bid.token == _expectedBid.token &&
-      bid.amount == _expectedBid.amount &&
-      bid.currency == _expectedBid.currency &&
-      bid.expiry == _expectedBid.expiry,
-      "Unexpected bid found."
-    );
+    /**
+     * @notice Function is used to accept a bid signed off-chain
+     * @param bid Bid object describing bid
+     * @param v V component of the signature
+     * @param r R component of the signature
+     * @param s S component of the signature
+     */
+    function acceptBid(
+        Bid memory bid,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        require(bid.amount > 0, "Market: can not accept bid of 0");
+        require(bid.expiry > block.timestamp, "Market: bid expired");
 
-    IERC20 token = IERC20(bid.currency);
+        bytes32 bidHash = keccak256(abi.encode(bid));
+        require(bidStates[bidHash] == BidState.None, "Market: bid cancelled or executed");
 
-    // Transfer bid share to owner of media
-    token.safeTransfer(bid.bidder, bid.amount);
+        _checkSignature(bid, v, r, s);
 
-    // Transfer media to bid recipient
-    IERC721(bid.token).safeTransferFrom(msg.sender, bid.bidder, _tokenId);
+        bidStates[bidHash] = BidState.Accepted;
+        bid.currency.safeTransferFrom(bid.bidder, msg.sender, bid.amount);
+        bid.token.safeTransferFrom(msg.sender, bid.bidder, bid.tokenId);
 
-    // Remove the accepted bid
-    delete stor.tokenBidders[_tokenId][bid.bidder];
-    emit BidFinalized(_tokenId, bid);
-  }
+        emit BidAccepted(bid, msg.sender);
+    }
+
+    // PRIVATE FUNCTIONS
+
+    /**
+     * @notice Internal function that checks signature against given bid
+     * @param bid Bid object describing bid
+     * @param v V component of the signature
+     * @param r R component of the signature
+     * @param s S component of the signature
+     */
+    function _checkSignature(
+        Bid memory bid,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) private view {
+        bytes32 domainSeparator = keccak256(
+            abi.encode(
+                EIP712_DOMAIN_TYPEHASH,
+                NAME_HASH,
+                VERSION_HASH,
+                _getChainId(),
+                address(this)
+            )
+        );
+        bytes32 hashStruct = keccak256(
+            abi.encode(
+                BID_TYPEHASH,
+                bid.currency,
+                bid.amount,
+                bid.bidder,
+                bid.token,
+                bid.tokenId,
+                bid.expiry,
+                bid.nonce
+            )
+        );
+
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, hashStruct));
+        address signer = ecrecover(digest, v, r, s);
+        require(signer == bid.bidder, "Market: invalid signature");
+    }
+
+    /**
+     * @notice Internal function that gets chain id
+     * @return Chain id
+     */
+    function _getChainId() private view returns (uint256) {
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        return chainId;
+    }
 }

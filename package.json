@@ -51,8 +51,9 @@
   },
   "dependencies": {
     "@metamask/eth-sig-util": "^4.0.0",
-    "@openzeppelin/contracts": "3.4.1",
+    "@openzeppelin/contracts": "4.3.2",
     "dotenv": "^8.2.0",
-    "ethereumjs-util": "^7.1.2"
+    "ethereumjs-util": "^7.1.2",
+    "solidity-coverage": "^0.7.17"
   }
 }

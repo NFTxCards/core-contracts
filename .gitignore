@@ -6,3 +6,6 @@ artifacts
 .idea
 .env
 types
+
+.coverage
+coverage.json

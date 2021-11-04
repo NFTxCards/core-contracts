@@ -3,13 +3,12 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
         "components": [
+          {
+            "internalType": "contract IERC20",
+            "name": "currency",
+            "type": "address"
+          },
           {
             "internalType": "uint256",
             "name": "amount",
@@ -17,45 +16,55 @@
           },
           {
             "internalType": "address",
-            "name": "currency",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
             "name": "bidder",
             "type": "address"
           },
           {
-            "internalType": "address",
+            "internalType": "contract IERC721",
             "name": "token",
             "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
             "name": "expiry",
             "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
           }
         ],
         "indexed": false,
-        "internalType": "struct LibBid.Bid",
+        "internalType": "struct Market.Bid",
         "name": "bid",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "acceptor",
+        "type": "address"
       }
     ],
-    "name": "BidCreated",
+    "name": "BidAccepted",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
         "components": [
+          {
+            "internalType": "contract IERC20",
+            "name": "currency",
+            "type": "address"
+          },
           {
             "internalType": "uint256",
             "name": "amount",
@@ -63,89 +72,74 @@
           },
           {
             "internalType": "address",
-            "name": "currency",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
             "name": "bidder",
             "type": "address"
           },
           {
-            "internalType": "address",
+            "internalType": "contract IERC721",
             "name": "token",
             "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
             "name": "expiry",
             "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
           }
         ],
         "indexed": false,
-        "internalType": "struct LibBid.Bid",
+        "internalType": "struct Market.Bid",
         "name": "bid",
         "type": "tuple"
       }
     ],
-    "name": "BidFinalized",
+    "name": "BidCancelled",
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
+    "inputs": [],
+    "name": "NAME",
+    "outputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "currency",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "bidder",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
-          },
-          {
-            "internalType": "uint64",
-            "name": "expiry",
-            "type": "uint64"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct LibBid.Bid",
-        "name": "bid",
-        "type": "tuple"
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
-    "name": "BidRemoved",
-    "type": "event"
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "VERSION",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
         "components": [
+          {
+            "internalType": "contract IERC20",
+            "name": "currency",
+            "type": "address"
+          },
           {
             "internalType": "uint256",
             "name": "amount",
@@ -153,28 +147,48 @@
           },
           {
             "internalType": "address",
-            "name": "currency",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
             "name": "bidder",
             "type": "address"
           },
           {
-            "internalType": "address",
+            "internalType": "contract IERC721",
             "name": "token",
             "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
             "name": "expiry",
             "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
           }
         ],
-        "internalType": "struct LibBid.Bid",
-        "name": "_expectedBid",
+        "internalType": "struct Market.Bid",
+        "name": "bid",
         "type": "tuple"
+      },
+      {
+        "internalType": "uint8",
+        "name": "v",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "r",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "s",
+        "type": "bytes32"
       }
     ],
     "name": "acceptBid",
@@ -185,12 +199,31 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "bidStates",
+    "outputs": [
+      {
+        "internalType": "enum Market.BidState",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "components": [
+          {
+            "internalType": "contract IERC20",
+            "name": "currency",
+            "type": "address"
+          },
           {
             "internalType": "uint256",
             "name": "amount",
@@ -198,54 +231,36 @@
           },
           {
             "internalType": "address",
-            "name": "currency",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
             "name": "bidder",
             "type": "address"
           },
           {
-            "internalType": "address",
+            "internalType": "contract IERC721",
             "name": "token",
             "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
             "name": "expiry",
             "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
           }
         ],
-        "internalType": "struct LibBid.Bid",
-        "name": "_bid",
+        "internalType": "struct Market.Bid",
+        "name": "bid",
         "type": "tuple"
-      },
-      {
-        "internalType": "address",
-        "name": "_spender",
-        "type": "address"
       }
     ],
-    "name": "createBid",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_bidder",
-        "type": "address"
-      }
-    ],
-    "name": "removeBid",
+    "name": "cancelBid",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
