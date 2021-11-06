@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Code coverage report for contracts/Verifier.sol</title>
+    <title>Code coverage report for contracts/ERC20Permit.sol</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -16,28 +16,28 @@
 <div class='wrapper'>
   <div class='pad1'>
     <h1>
-      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> Verifier.sol
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> ERC20Permit.sol
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>7/7</span>
+        <span class='fraction'>8/8</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">50% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>4/4</span>
+        <span class='fraction'>2/4</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>3/3</span>
+        <span class='fraction'>2/2</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>8/8</span>
+        <span class='fraction'>10/10</span>
       </div>
     </div>
   </div>
@@ -98,7 +98,10 @@
 53
 54
 55
-56</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+56
+57
+58
+59</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -117,18 +120,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -142,12 +139,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -156,40 +162,49 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 &nbsp;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 &nbsp;
-contract Verifier {
-    string private constant EIP712_DOMAIN =
-        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
+abstract contract ERC20Permit is ERC20 {
+    mapping(address =&gt; uint256) private _nonces;
 &nbsp;
-    string private constant APPLICATION_VERSION = "1";
-    string private constant APPLICATION_NAME = "NFTxCards";
+    bytes32 private constant PERMIT_TYPEHASH =
+        keccak256(
+            "Permit(address owner,address spender,uint256 value,uint256 deadline,uint256 nonce)"
+        );
 &nbsp;
-    function verify(
+    bytes32 private constant EIP712_DOMAIN_TYPEHASH =
+        keccak256(
+            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+        );
+&nbsp;
+    bytes32 private constant VERSION_HASH = keccak256("1");
+    bytes32 private constant NAME_HASH = keccak256("ERC20Permit");
+&nbsp;
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
         uint8 v,
         bytes32 r,
-        bytes32 s,
-        address sender,
-        uint256 deadline
-    ) public view {
-        require(block.timestamp &lt; deadline, "signed transaction expired");
+        bytes32 s
+    ) external {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(block.timestamp &lt; deadline, "ERC20Permit: expired deadline");
 &nbsp;
-        bytes32 hash = keccak256(
-            abi.encodePacked(uint16(0x1901), hashDomain(), hashVerify(sender, deadline))
+        bytes32 hashStruct = keccak256(
+            abi.encode(PERMIT_TYPEHASH, owner, spender, value, deadline, _nonces[owner])
         );
-        address signer = ECDSA.recover(hash, v, r, s);
 &nbsp;
-        require(signer == sender, "verify invalid signature");
+        bytes32 digest = keccak256(abi.encodePacked(uint16(0x1901), _hashDomain(), hashStruct));
+        address signer = ECDSA.recover(digest, v, r, s);
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(signer == owner, "ERC20Permit: invalid signature");
+&nbsp;
+        _nonces[signer]++;
+        _approve(owner, spender, value);
     }
 &nbsp;
-    function hashVerify(address sender, uint256 deadline) private pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(keccak256("verify(address sender,uint deadline)"), sender, deadline)
-            );
-    }
-&nbsp;
-    function hashDomain() private view returns (bytes32) {
+    function _hashDomain() private view returns (bytes32) {
         uint256 chainId;
 &nbsp;
         assembly {
@@ -198,13 +213,7 @@ contract Verifier {
 &nbsp;
         return
             keccak256(
-                abi.encode(
-                    keccak256(bytes(EIP712_DOMAIN)),
-                    keccak256(bytes(APPLICATION_NAME)),
-                    keccak256(bytes(APPLICATION_VERSION)),
-                    chainId,
-                    address(this)
-                )
+                abi.encode(EIP712_DOMAIN_TYPEHASH, NAME_HASH, VERSION_HASH, chainId, address(this))
             );
     }
 }
