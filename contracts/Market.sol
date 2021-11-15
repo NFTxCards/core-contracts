@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "./lib/PermitTransfer.sol";
 import "./interfaces/IERC721Permit.sol";
 import "./interfaces/IERC1155Permit.sol";
 import "./interfaces/IERC20Permit.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract Market {
-    using SafeERC20 for IERC20Permit;
+    using PermitTransfer for IERC20Permit;
+    using PermitTransfer for IERC721Permit;
+    using PermitTransfer for IERC1155Permit;
 
     /// @notice Contract name
     string public constant NAME = "NFTxCards Market";
@@ -65,33 +67,6 @@ contract Market {
         None,
         Cancelled,
         Accepted
-    }
-
-    struct Signature {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-    }
-
-    struct SignatureERC20 {
-        bool exists;
-        uint256 amount;
-        uint256 deadline;
-        Signature sig;
-    }
-
-    struct SignatureERC721 {
-        bool exists;
-        bool forAll;
-        uint256 tokenId;
-        uint256 deadline;
-        Signature sig;
-    }
-
-    struct SignatureERC1155 {
-        bool exists;
-        uint256 deadline;
-        Signature sig;
     }
 
     /// @notice Mapping of bid hashes to their states
@@ -152,9 +127,9 @@ contract Market {
      */
     function acceptBidERC721(
         BidERC721 calldata bid,
-        Signature calldata bidSig,
-        SignatureERC20 calldata currencySig,
-        SignatureERC721 calldata tokenSig
+        PermitTransfer.Signature calldata bidSig,
+        PermitTransfer.SignatureERC20 calldata currencySig,
+        PermitTransfer.SignatureERC721 calldata tokenSig
     ) external {
         require(bid.amount > 0, "Market: can not accept bid of 0");
         require(bid.expiry > block.timestamp, "Market: bid expired");
@@ -163,43 +138,8 @@ contract Market {
         require(bidStates[bidHash] == BidState.None, "Market: bid cancelled or executed");
 
         bidStates[bidHash] = BidState.Accepted;
-
-        if (currencySig.exists) {
-            bid.currency.permit(
-                bid.bidder,
-                address(this),
-                currencySig.amount,
-                currencySig.deadline,
-                currencySig.sig.v,
-                currencySig.sig.r,
-                currencySig.sig.s
-            );
-        }
-        bid.currency.safeTransferFrom(bid.bidder, msg.sender, bid.amount);
-
-        if (tokenSig.exists) {
-            if (tokenSig.forAll) {
-                bid.token.permitAll(
-                    msg.sender,
-                    address(this),
-                    tokenSig.deadline,
-                    tokenSig.sig.v,
-                    tokenSig.sig.r,
-                    tokenSig.sig.s
-                );
-            } else {
-                bid.token.permit(
-                    msg.sender,
-                    address(this),
-                    tokenSig.tokenId,
-                    tokenSig.deadline,
-                    tokenSig.sig.v,
-                    tokenSig.sig.r,
-                    tokenSig.sig.s
-                );
-            }
-        }
-        bid.token.safeTransferFrom(msg.sender, bid.bidder, bid.tokenId);
+        bid.currency.permitTransfer(bid.bidder, msg.sender, bid.amount, currencySig);
+        bid.token.permitTransfer(msg.sender, bid.bidder, bid.tokenId, tokenSig);
 
         emit BidERC721Accepted(bid, msg.sender);
     }
@@ -213,9 +153,9 @@ contract Market {
      */
     function acceptBidERC1155(
         BidERC1155 calldata bid,
-        Signature calldata bidSig,
-        SignatureERC20 calldata currencySig,
-        SignatureERC1155 calldata tokenSig
+        PermitTransfer.Signature calldata bidSig,
+        PermitTransfer.SignatureERC20 calldata currencySig,
+        PermitTransfer.SignatureERC1155 calldata tokenSig
     ) external {
         require(bid.currencyAmount > 0, "Market: can not accept bid of 0");
         require(bid.expiry > block.timestamp, "Market: bid expired");
@@ -224,31 +164,8 @@ contract Market {
         require(bidStates[bidHash] == BidState.None, "Market: bid cancelled or executed");
 
         bidStates[bidHash] = BidState.Accepted;
-
-        if (currencySig.exists) {
-            bid.currency.permit(
-                bid.bidder,
-                address(this),
-                currencySig.amount,
-                currencySig.deadline,
-                currencySig.sig.v,
-                currencySig.sig.r,
-                currencySig.sig.s
-            );
-        }
-        bid.currency.safeTransferFrom(bid.bidder, msg.sender, bid.currencyAmount);
-
-        if (tokenSig.exists) {
-            bid.token.permit(
-                msg.sender,
-                address(this),
-                tokenSig.deadline,
-                tokenSig.sig.v,
-                tokenSig.sig.r,
-                tokenSig.sig.s
-            );
-        }
-        bid.token.safeTransferFrom(msg.sender, bid.bidder, bid.typeId, bid.tokenAmount, "");
+        bid.currency.permitTransfer(bid.bidder, msg.sender, bid.currencyAmount, currencySig);
+        bid.token.permitTransfer(msg.sender, bid.bidder, bid.typeId, bid.tokenAmount, tokenSig);
 
         emit BidERC1155Accepted(bid, msg.sender);
     }
@@ -261,7 +178,7 @@ contract Market {
      * @param sig Signature object describing signature
      * @return digest EIP712 hash of the bid
      */
-    function _checkSignatureERC721(BidERC721 memory bid, Signature memory sig)
+    function _checkSignatureERC721(BidERC721 memory bid, PermitTransfer.Signature memory sig)
         private
         view
         returns (bytes32 digest)
@@ -298,7 +215,7 @@ contract Market {
      * @param sig Signature object describing signature
      * @return digest EIP712 hash of the bid
      */
-    function _checkSignatureERC1155(BidERC1155 memory bid, Signature memory sig)
+    function _checkSignatureERC1155(BidERC1155 memory bid, PermitTransfer.Signature memory sig)
         private
         view
         returns (bytes32 digest)

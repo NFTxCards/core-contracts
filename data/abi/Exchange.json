@@ -3,28 +3,21 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "orderHash",
-        "type": "bytes32"
-      },
-      {
         "components": [
           {
+            "internalType": "contract IERC1155Permit",
+            "name": "token",
+            "type": "address"
+          },
+          {
             "internalType": "uint256",
-            "name": "tokenId",
+            "name": "typeId",
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -32,9 +25,14 @@
             "type": "address"
           },
           {
-            "internalType": "uint128",
-            "name": "basePrice",
-            "type": "uint128"
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
@@ -42,31 +40,88 @@
             "type": "uint64"
           },
           {
-            "internalType": "uint64",
-            "name": "listingTime",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint256",
-            "name": "salt",
-            "type": "uint256"
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
           }
         ],
         "indexed": false,
-        "internalType": "struct LibOrder.Order",
+        "internalType": "struct Exchange.OrderERC1155",
         "name": "order",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "acceptor",
+        "type": "address"
       }
     ],
-    "name": "CreateOrder",
+    "name": "OrderERC1155Accepted",
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
         "components": [
           {
+            "internalType": "contract IERC1155Permit",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "typeId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
             "internalType": "address",
+            "name": "maker",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "expiry",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Exchange.OrderERC1155",
+        "name": "order",
+        "type": "tuple"
+      }
+    ],
+    "name": "OrderERC1155Cancelled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "contract IERC721Permit",
             "name": "token",
             "type": "address"
           },
@@ -76,29 +131,120 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint128",
-            "name": "price",
-            "type": "uint128"
+            "internalType": "address",
+            "name": "maker",
+            "type": "address"
           },
           {
-            "internalType": "uint64",
-            "name": "expirationTime",
-            "type": "uint64"
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
           },
           {
             "internalType": "uint256",
-            "name": "salt",
+            "name": "price",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "expiry",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
           }
         ],
-        "internalType": "struct LibOrder.NewOrder",
-        "name": "_order",
+        "indexed": false,
+        "internalType": "struct Exchange.OrderERC721",
+        "name": "order",
+        "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "acceptor",
+        "type": "address"
+      }
+    ],
+    "name": "OrderERC721Accepted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "contract IERC721Permit",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "maker",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "expiry",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Exchange.OrderERC721",
+        "name": "order",
         "type": "tuple"
       }
     ],
-    "name": "createOrder",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "OrderERC721Cancelled",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "NAME",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "VERSION",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -106,14 +252,19 @@
       {
         "components": [
           {
+            "internalType": "contract IERC1155Permit",
+            "name": "token",
+            "type": "address"
+          },
+          {
             "internalType": "uint256",
-            "name": "tokenId",
+            "name": "typeId",
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -121,9 +272,14 @@
             "type": "address"
           },
           {
-            "internalType": "uint128",
-            "name": "basePrice",
-            "type": "uint128"
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
@@ -131,22 +287,78 @@
             "type": "uint64"
           },
           {
-            "internalType": "uint64",
-            "name": "listingTime",
-            "type": "uint64"
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct Exchange.OrderERC1155",
+        "name": "order",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint8",
+            "name": "v",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "r",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "s",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct PermitTransfer.Signature",
+        "name": "orderSig",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
           },
           {
             "internalType": "uint256",
-            "name": "salt",
+            "name": "deadline",
             "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "v",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "r",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "s",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct PermitTransfer.Signature",
+            "name": "sig",
+            "type": "tuple"
           }
         ],
-        "internalType": "struct LibOrder.Order",
-        "name": "_order",
+        "internalType": "struct PermitTransfer.SignatureERC1155",
+        "name": "tokenSig",
         "type": "tuple"
       }
     ],
-    "name": "fillOrder",
+    "name": "acceptETHOrderERC1155",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -156,14 +368,14 @@
       {
         "components": [
           {
+            "internalType": "contract IERC721Permit",
+            "name": "token",
+            "type": "address"
+          },
+          {
             "internalType": "uint256",
             "name": "tokenId",
             "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
           },
           {
             "internalType": "address",
@@ -171,9 +383,14 @@
             "type": "address"
           },
           {
-            "internalType": "uint128",
-            "name": "basePrice",
-            "type": "uint128"
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
@@ -181,123 +398,90 @@
             "type": "uint64"
           },
           {
-            "internalType": "uint64",
-            "name": "listingTime",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint256",
-            "name": "salt",
-            "type": "uint256"
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
           }
         ],
-        "internalType": "struct LibOrder.Order",
-        "name": "_order",
+        "internalType": "struct Exchange.OrderERC721",
+        "name": "order",
         "type": "tuple"
-      }
-    ],
-    "name": "getOrder",
-    "outputs": [
+      },
       {
         "components": [
           {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
+            "internalType": "uint8",
+            "name": "v",
+            "type": "uint8"
           },
           {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
+            "internalType": "bytes32",
+            "name": "r",
+            "type": "bytes32"
           },
           {
-            "internalType": "address",
-            "name": "maker",
-            "type": "address"
-          },
-          {
-            "internalType": "uint128",
-            "name": "basePrice",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint64",
-            "name": "expiry",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint64",
-            "name": "listingTime",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint256",
-            "name": "salt",
-            "type": "uint256"
+            "internalType": "bytes32",
+            "name": "s",
+            "type": "bytes32"
           }
         ],
-        "internalType": "struct LibOrder.Order",
-        "name": "order",
+        "internalType": "struct PermitTransfer.Signature",
+        "name": "orderSig",
         "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_orderHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getOrderFromHash",
-    "outputs": [
+      },
       {
         "components": [
           {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "forAll",
+            "type": "bool"
+          },
+          {
             "internalType": "uint256",
             "name": "tokenId",
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "maker",
-            "type": "address"
-          },
-          {
-            "internalType": "uint128",
-            "name": "basePrice",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint64",
-            "name": "expiry",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint64",
-            "name": "listingTime",
-            "type": "uint64"
-          },
-          {
             "internalType": "uint256",
-            "name": "salt",
+            "name": "deadline",
             "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "v",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "r",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "s",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct PermitTransfer.Signature",
+            "name": "sig",
+            "type": "tuple"
           }
         ],
-        "internalType": "struct LibOrder.Order",
-        "name": "order",
+        "internalType": "struct PermitTransfer.SignatureERC721",
+        "name": "tokenSig",
         "type": "tuple"
       }
     ],
-    "stateMutability": "view",
+    "name": "acceptETHOrderERC721",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -305,14 +489,19 @@
       {
         "components": [
           {
+            "internalType": "contract IERC1155Permit",
+            "name": "token",
+            "type": "address"
+          },
+          {
             "internalType": "uint256",
-            "name": "tokenId",
+            "name": "typeId",
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -320,9 +509,14 @@
             "type": "address"
           },
           {
-            "internalType": "uint128",
-            "name": "basePrice",
-            "type": "uint128"
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
@@ -330,29 +524,301 @@
             "type": "uint64"
           },
           {
-            "internalType": "uint64",
-            "name": "listingTime",
-            "type": "uint64"
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct Exchange.OrderERC1155",
+        "name": "order",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint8",
+            "name": "v",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "r",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "s",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct PermitTransfer.Signature",
+        "name": "orderSig",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
           },
           {
             "internalType": "uint256",
-            "name": "salt",
+            "name": "amount",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "v",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "r",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "s",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct PermitTransfer.Signature",
+            "name": "sig",
+            "type": "tuple"
           }
         ],
-        "internalType": "struct LibOrder.Order",
-        "name": "order",
+        "internalType": "struct PermitTransfer.SignatureERC20",
+        "name": "currencySig",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "v",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "r",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "s",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct PermitTransfer.Signature",
+            "name": "sig",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct PermitTransfer.SignatureERC1155",
+        "name": "tokenSig",
         "type": "tuple"
       }
     ],
-    "name": "getOrderHash",
-    "outputs": [
+    "name": "acceptOrderERC1155",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "contract IERC721Permit",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "maker",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "expiry",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct Exchange.OrderERC721",
+        "name": "order",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint8",
+            "name": "v",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "r",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "s",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct PermitTransfer.Signature",
+        "name": "orderSig",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "v",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "r",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "s",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct PermitTransfer.Signature",
+            "name": "sig",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct PermitTransfer.SignatureERC20",
+        "name": "currencySig",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "forAll",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint8",
+                "name": "v",
+                "type": "uint8"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "r",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "s",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct PermitTransfer.Signature",
+            "name": "sig",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct PermitTransfer.SignatureERC721",
+        "name": "tokenSig",
+        "type": "tuple"
+      }
+    ],
+    "name": "acceptOrderERC721",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "bytes32",
-        "name": "orderHash",
+        "name": "c__0xad9f72cc",
         "type": "bytes32"
       }
     ],
+    "name": "c_0xad9f72cc",
+    "outputs": [],
     "stateMutability": "pure",
     "type": "function"
   },
@@ -361,14 +827,19 @@
       {
         "components": [
           {
+            "internalType": "contract IERC1155Permit",
+            "name": "token",
+            "type": "address"
+          },
+          {
             "internalType": "uint256",
-            "name": "tokenId",
+            "name": "typeId",
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -376,9 +847,14 @@
             "type": "address"
           },
           {
-            "internalType": "uint128",
-            "name": "basePrice",
-            "type": "uint128"
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
           },
           {
             "internalType": "uint64",
@@ -386,24 +862,88 @@
             "type": "uint64"
           },
           {
-            "internalType": "uint64",
-            "name": "listingTime",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint256",
-            "name": "salt",
-            "type": "uint256"
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
           }
         ],
-        "internalType": "struct LibOrder.Order",
-        "name": "_order",
+        "internalType": "struct Exchange.OrderERC1155",
+        "name": "order",
         "type": "tuple"
       }
     ],
-    "name": "removeOrder",
+    "name": "cancelOrderERC1155",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "contract IERC721Permit",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "maker",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IERC20Permit",
+            "name": "currency",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "expiry",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint8",
+            "name": "nonce",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct Exchange.OrderERC721",
+        "name": "order",
+        "type": "tuple"
+      }
+    ],
+    "name": "cancelOrderERC721",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "orderStates",
+    "outputs": [
+      {
+        "internalType": "enum Exchange.OrderState",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

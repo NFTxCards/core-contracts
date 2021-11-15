@@ -7,5 +7,5 @@ artifacts
 .env
 types
 
-.coverage
+coverage
 coverage.json
