@@ -128,6 +128,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x6f8e1c45",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x6f8e1c45",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "decimals",
     "outputs": [

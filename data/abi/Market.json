@@ -314,7 +314,7 @@
             "type": "bytes32"
           }
         ],
-        "internalType": "struct Market.Signature",
+        "internalType": "struct PermitTransfer.Signature",
         "name": "bidSig",
         "type": "tuple"
       },
@@ -353,12 +353,12 @@
                 "type": "bytes32"
               }
             ],
-            "internalType": "struct Market.Signature",
+            "internalType": "struct PermitTransfer.Signature",
             "name": "sig",
             "type": "tuple"
           }
         ],
-        "internalType": "struct Market.SignatureERC20",
+        "internalType": "struct PermitTransfer.SignatureERC20",
         "name": "currencySig",
         "type": "tuple"
       },
@@ -392,12 +392,12 @@
                 "type": "bytes32"
               }
             ],
-            "internalType": "struct Market.Signature",
+            "internalType": "struct PermitTransfer.Signature",
             "name": "sig",
             "type": "tuple"
           }
         ],
-        "internalType": "struct Market.SignatureERC1155",
+        "internalType": "struct PermitTransfer.SignatureERC1155",
         "name": "tokenSig",
         "type": "tuple"
       }
@@ -469,7 +469,7 @@
             "type": "bytes32"
           }
         ],
-        "internalType": "struct Market.Signature",
+        "internalType": "struct PermitTransfer.Signature",
         "name": "bidSig",
         "type": "tuple"
       },
@@ -508,12 +508,12 @@
                 "type": "bytes32"
               }
             ],
-            "internalType": "struct Market.Signature",
+            "internalType": "struct PermitTransfer.Signature",
             "name": "sig",
             "type": "tuple"
           }
         ],
-        "internalType": "struct Market.SignatureERC20",
+        "internalType": "struct PermitTransfer.SignatureERC20",
         "name": "currencySig",
         "type": "tuple"
       },
@@ -557,12 +557,12 @@
                 "type": "bytes32"
               }
             ],
-            "internalType": "struct Market.Signature",
+            "internalType": "struct PermitTransfer.Signature",
             "name": "sig",
             "type": "tuple"
           }
         ],
-        "internalType": "struct Market.SignatureERC721",
+        "internalType": "struct PermitTransfer.SignatureERC721",
         "name": "tokenSig",
         "type": "tuple"
       }
@@ -589,6 +589,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x7cb485c9",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x7cb485c9",
+    "outputs": [],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
