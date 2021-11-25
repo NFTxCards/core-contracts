@@ -8,10 +8,7 @@ library LibOrder {
     using LibAsset for LibAsset.Asset;
 
     /// @notice Order hash for EIP712
-    bytes32 private constant ORDER_TYPEHASH =
-        keccak256(
-            "Order(address account,Asset commodity,Asset payment,uint64 expiry,uint8 nonce)Asset(address token,uint256 id,uint256 amount)"
-        );
+    bytes32 private constant ORDER_TYPEHASH = keccak256("Order(address account)");
 
     enum OrderSide {
         Buy,
@@ -30,17 +27,7 @@ library LibOrder {
     }
 
     function hashOrder(Order memory order) internal pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    ORDER_TYPEHASH,
-                    order.account,
-                    order.commodity.hashAsset(),
-                    order.commodity.hashAsset(),
-                    order.expiry,
-                    order.nonce
-                )
-            );
+        return keccak256(abi.encode(ORDER_TYPEHASH, order.account));
     }
 
     function matchOrder(
@@ -51,7 +38,6 @@ library LibOrder {
         require(order.commodity.isCommodity(), "LibOrder: commodity is not correct");
         require(order.payment.isPayment(), "LibOrder: payment is not correct");
         require(block.timestamp < order.expiry, "LibOrder: order expired");
-        LibSig.checkSig(order.orderSig, hashOrder(order), order.account);
 
         if (order.side == OrderSide.Buy) {
             order.payment.permitTransfer(order.permitSig, order.account, taker);
