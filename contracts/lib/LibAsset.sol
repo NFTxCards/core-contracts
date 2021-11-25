@@ -12,7 +12,7 @@ library LibAsset {
 
     /// @notice Order hash for EIP712
     bytes32 private constant ASSET_TYPEHASH =
-        keccak256("Asset(address token,uint256 id,uint256 amount)");
+        keccak256("Asset(uint8 assetType,address token,uint256 id,uint256 amount)");
 
     enum AssetType {
         ERC20,
@@ -46,7 +46,10 @@ library LibAsset {
     }
 
     function hashAsset(Asset memory asset) internal pure returns (bytes32) {
-        return keccak256(abi.encode(ASSET_TYPEHASH, asset.token, asset.id, asset.amount));
+        return
+            keccak256(
+                abi.encode(ASSET_TYPEHASH, asset.assetType, asset.token, asset.id, asset.amount)
+            );
     }
 
     function isCommodity(Asset memory asset) internal pure returns (bool) {
