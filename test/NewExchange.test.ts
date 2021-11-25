@@ -66,7 +66,20 @@ describe("Test Exchange contract", function () {
     });
 
     const TypesOrder = {
-        Order: [{ name: "account", type: "address" }],
+        Order: [
+            { name: "account", type: "address" },
+            { name: "side", type: "uint8" },
+            { name: "commodity", type: "Asset" },
+            { name: "payment", type: "Asset" },
+            { name: "expiry", type: "uint64" },
+            { name: "nonce", type: "uint8" },
+        ],
+        Asset: [
+            { name: "assetType", type: "uint8" },
+            { name: "token", type: "address" },
+            { name: "id", type: "uint256" },
+            { name: "amount", type: "uint256" },
+        ],
     };
 
     async function signOrder(signer: SignerWithAddress, order: object) {
@@ -144,9 +157,7 @@ describe("Test Exchange contract", function () {
             order = {
                 ...orderToSign,
                 permitSig: [],
-                orderSig: await signOrder(owner, {
-                    account: owner.address,
-                }),
+                orderSig: await signOrder(owner, orderToSign),
             };
         });
 

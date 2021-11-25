@@ -8,7 +8,10 @@ library LibOrder {
     using LibAsset for LibAsset.Asset;
 
     /// @notice Order hash for EIP712
-    bytes32 private constant ORDER_TYPEHASH = keccak256("Order(address account)");
+    bytes32 private constant ORDER_TYPEHASH =
+        keccak256(
+            "Order(address account,uint8 side,Asset commodity,Asset payment,uint64 expiry,uint8 nonce)Asset(uint8 assetType,address token,uint256 id,uint256 amount)"
+        );
 
     enum OrderSide {
         Buy,
@@ -27,7 +30,18 @@ library LibOrder {
     }
 
     function hashOrder(Order memory order) internal pure returns (bytes32) {
-        return keccak256(abi.encode(ORDER_TYPEHASH, order.account));
+        return
+            keccak256(
+                abi.encode(
+                    ORDER_TYPEHASH,
+                    order.account,
+                    order.side,
+                    order.commodity.hashAsset(),
+                    order.payment.hashAsset(),
+                    order.expiry,
+                    order.nonce
+                )
+            );
     }
 
     function matchOrder(
