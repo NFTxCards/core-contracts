@@ -128,7 +128,7 @@ library LibAsset {
         address from,
         address to
     ) internal {
-        if (permitSig.length == 0) {
+        if (permitSig.length != 0) {
             permit(asset, permitSig, from);
         }
         transfer(asset, from, to);

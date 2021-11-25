@@ -58,29 +58,19 @@ describe("Test Exchange contract", function () {
     let chainId: number, block: Block;
     let orderToSign: OrderToSign, order: Order;
 
+    const Domain = (exchange: Exchange) => ({
+        name: "Exchange",
+        version: "1",
+        chainId,
+        verifyingContract: exchange.address,
+    });
+
     const TypesOrder = {
-        Order: [
-            { name: "account", type: "address" },
-            {
-                name: "commodity",
-                type: "Asset",
-            },
-            {
-                name: "payment",
-                type: "Asset",
-            },
-            { name: "expiry", type: "uint64" },
-            { name: "nonce", type: "uint8" },
-        ],
-        Asset: [
-            { name: "token", type: "address" },
-            { name: "id", type: "uint256" },
-            { name: "amount", type: "uint256" },
-        ],
+        Order: [{ name: "account", type: "address" }],
     };
 
-    async function signOrder(signer: SignerWithAddress, order: OrderToSign) {
-        return await signMessage(signer, {}, TypesOrder, order);
+    async function signOrder(signer: SignerWithAddress, order: object) {
+        return await signMessage(signer, Domain(exchange), TypesOrder, order);
     }
 
     const DomainERC20 = (token: ERC20TokenMock) => ({
@@ -154,7 +144,9 @@ describe("Test Exchange contract", function () {
             order = {
                 ...orderToSign,
                 permitSig: [],
-                orderSig: await signOrder(owner, orderToSign),
+                orderSig: await signOrder(owner, {
+                    account: owner.address,
+                }),
             };
         });
 
