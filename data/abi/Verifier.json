@@ -2,19 +2,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "c__0x4bbc4338",
-        "type": "bytes32"
-      }
-    ],
-    "name": "c_0x4bbc4338",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint8",
         "name": "v",
         "type": "uint8"
