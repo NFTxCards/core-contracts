@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "./interfaces/IERC1155Permit.sol";
 
 abstract contract ERC1155Permit is ERC1155 {
     mapping(address => uint256) private _nonces;
@@ -51,5 +52,10 @@ abstract contract ERC1155Permit is ERC1155 {
             keccak256(
                 abi.encode(EIP712_DOMAIN_TYPEHASH, NAME_HASH, VERSION_HASH, chainId, address(this))
             );
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IERC1155Permit).interfaceId || super.supportsInterface(interfaceId);
     }
 }

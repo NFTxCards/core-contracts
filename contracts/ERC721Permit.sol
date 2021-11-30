@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "./interfaces/IERC721Permit.sol";
 
 abstract contract ERC721Permit is ERC721 {
     mapping(address => uint256) private _nonces;
@@ -85,5 +86,10 @@ abstract contract ERC721Permit is ERC721 {
             keccak256(
                 abi.encode(EIP712_DOMAIN_TYPEHASH, NAME_HASH, VERSION_HASH, chainId, address(this))
             );
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IERC721Permit).interfaceId || super.supportsInterface(interfaceId);
     }
 }

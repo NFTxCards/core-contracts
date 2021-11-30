@@ -2,12 +2,13 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./lib/LibOrder.sol";
 import "./interfaces/IERC20Permit.sol";
 import "./interfaces/IERC721Permit.sol";
 import "./interfaces/IERC1155Permit.sol";
 
-contract Exchange {
+contract Exchange is Ownable {
     using LibOrder for LibOrder.Order;
 
     bytes32 private constant EIP712_DOMAIN_TYPEHASH =
@@ -28,6 +29,19 @@ contract Exchange {
     /// @notice Mapping of order hashes to their states
     mapping(bytes32 => OrderState) public orderStates;
 
+    address public treasury;
+
+    uint256 public fee;
+
+    // CONSTRUCTOR
+
+    constructor(address treasury_, uint256 fee_) {
+        require(fee_ < 5000, "Exchange: invalid fee");
+
+        treasury = treasury_;
+        fee = fee_;
+    }
+
     // EVENTS
 
     event OrderCancelled(LibOrder.Order order);
@@ -46,7 +60,7 @@ contract Exchange {
         emit OrderCancelled(order);
     }
 
-    function matchOrder(LibOrder.Order memory order, bytes memory permitSig) external {
+    function matchOrder(LibOrder.Order memory order, bytes memory permitSig) external payable {
         bytes32 orderHash = order.hashOrder();
         require(orderStates[orderHash] == OrderState.None, "Exchange: order is in wrong state");
 
@@ -54,8 +68,20 @@ contract Exchange {
         LibSig.checkSig(order.orderSig, digest, order.account);
 
         orderStates[orderHash] = OrderState.Executed;
-        order.matchOrder(msg.sender, permitSig);
+        order.matchOrder(msg.sender, permitSig, treasury, fee);
         emit OrderMatch(order, msg.sender);
+    }
+
+    // RESTRICTED FUNCTIONS
+
+    function setTreasury(address treasury_) external onlyOwner {
+        treasury = treasury_;
+    }
+
+    function setFee(uint256 fee_) external onlyOwner {
+        require(fee_ < 5000, "Exchange: invalid fee");
+
+        fee = fee_;
     }
 
     // VIEW FUNCTIONS

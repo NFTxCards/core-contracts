@@ -2,6 +2,8 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
+import "../interfaces/IERC721Royalties.sol";
 import "../interfaces/IERC20Permit.sol";
 import "../interfaces/IERC721Permit.sol";
 import "../interfaces/IERC1155Permit.sol";
@@ -9,6 +11,7 @@ import "./LibSig.sol";
 
 library LibAsset {
     using SafeERC20 for IERC20Permit;
+    using ERC165Checker for address;
 
     /// @notice Order hash for EIP712
     bytes32 private constant ASSET_TYPEHASH =
@@ -17,7 +20,8 @@ library LibAsset {
     enum AssetType {
         ERC20,
         ERC721,
-        ERC1155
+        ERC1155,
+        ETH
     }
 
     struct Asset {
@@ -56,8 +60,30 @@ library LibAsset {
         return asset.assetType == AssetType.ERC721 || asset.assetType == AssetType.ERC1155;
     }
 
-    function isPayment(Asset memory asset) internal pure returns (bool) {
-        return asset.assetType == AssetType.ERC20;
+    function isPayment(Asset memory asset, bool buyOrder) internal pure returns (bool) {
+        if (buyOrder) {
+            return asset.assetType == AssetType.ERC20;
+        } else {
+            return asset.assetType == AssetType.ERC20 || asset.assetType == AssetType.ETH;
+        }
+    }
+
+    function withAmount(Asset memory asset, uint256 amount) internal pure returns (Asset memory) {
+        return
+            Asset({assetType: asset.assetType, token: asset.token, amount: amount, id: asset.id});
+    }
+
+    function getRoyalty(Asset memory asset)
+        internal
+        view
+        returns (address receiver, uint256 value)
+    {
+        if (
+            asset.assetType == AssetType.ERC721 &&
+            asset.token.supportsInterface(type(IERC721Royalties).interfaceId)
+        ) {
+            (receiver, value) = IERC721Royalties(asset.token).getRoyalty(asset.id);
+        }
     }
 
     function permit(
@@ -120,8 +146,10 @@ library LibAsset {
             IERC20Permit(asset.token).safeTransferFrom(from, to, asset.amount);
         } else if (asset.assetType == AssetType.ERC721) {
             IERC721Permit(asset.token).safeTransferFrom(from, to, asset.id);
-        } else {
+        } else if (asset.assetType == AssetType.ERC1155) {
             IERC1155Permit(asset.token).safeTransferFrom(from, to, asset.id, asset.amount, "");
+        } else {
+            payable(to).send(asset.amount);
         }
     }
 
@@ -131,9 +159,14 @@ library LibAsset {
         address from,
         address to
     ) internal {
-        if (permitSig.length != 0) {
-            permit(asset, permitSig, from);
+        if (asset.assetType == AssetType.ETH) {
+            require(msg.value == asset.amount, "LibAsset: message value to low");
+            payable(to).send(msg.value);
+        } else {
+            if (permitSig.length != 0) {
+                permit(asset, permitSig, from);
+            }
+            transfer(asset, from, to);
         }
-        transfer(asset, from, to);
     }
 }

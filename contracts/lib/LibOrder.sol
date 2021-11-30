@@ -47,18 +47,71 @@ library LibOrder {
     function matchOrder(
         Order memory order,
         address taker,
-        bytes memory takerPermitSig
+        bytes memory takerPermitSig,
+        address treasury,
+        uint256 fee
     ) internal {
         require(order.commodity.isCommodity(), "LibOrder: commodity is not correct");
-        require(order.payment.isPayment(), "LibOrder: payment is not correct");
+        require(
+            order.payment.isPayment(order.side == OrderSide.Buy),
+            "LibOrder: payment is not correct"
+        );
         require(block.timestamp < order.expiry, "LibOrder: order expired");
 
         if (order.side == OrderSide.Buy) {
-            order.payment.permitTransfer(order.permitSig, order.account, taker);
+            transferPayment(
+                order.payment,
+                order.permitSig,
+                order.commodity,
+                order.account,
+                taker,
+                treasury,
+                fee
+            );
             order.commodity.permitTransfer(takerPermitSig, taker, order.account);
         } else {
-            order.payment.permitTransfer(takerPermitSig, taker, order.account);
+            transferPayment(
+                order.payment,
+                takerPermitSig,
+                order.commodity,
+                taker,
+                order.account,
+                treasury,
+                fee
+            );
             order.commodity.permitTransfer(order.permitSig, order.account, taker);
         }
+    }
+
+    function transferPayment(
+        LibAsset.Asset memory payment,
+        bytes memory paymentSig,
+        LibAsset.Asset memory commodity,
+        address from,
+        address to,
+        address treasury,
+        uint256 fee
+    ) internal {
+        if (payment.assetType == LibAsset.AssetType.ETH) {
+            require(msg.value == payment.amount, "LibOrder: message value to low");
+        } else if (paymentSig.length != 0) {
+            payment.permit(paymentSig, from);
+        }
+
+        uint256 feeAmount = (payment.amount * fee) / 10000;
+        if (feeAmount > 0) {
+            payment.withAmount(feeAmount).transfer(from, treasury);
+        }
+
+        uint256 royaltyAmount;
+        {
+            (address receiver, uint256 royalty) = commodity.getRoyalty();
+            royaltyAmount = (payment.amount * royalty) / 10000;
+            if (royaltyAmount > 0) {
+                payment.withAmount(royaltyAmount).transfer(from, receiver);
+            }
+        }
+
+        payment.withAmount(payment.amount - royaltyAmount - feeAmount).transfer(from, to);
     }
 }

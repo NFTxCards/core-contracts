@@ -87,8 +87,11 @@ export const setTime = async (timestamp: number) => {
     await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
 };
 
-export const increaseTime = async (timestamp: number) => {
+export const increaseTime = async (timestamp: number, mineNow: boolean = true) => {
     await ethers.provider.send("evm_increaseTime", [timestamp]);
+    if (mineNow) {
+        await mine();
+    }
 };
 
 export const mine = async () => {
