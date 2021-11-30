@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat";
-import { signMessage } from "./utils";
+import { increaseTime, signMessage } from "./utils";
 
 import { expect } from "chai";
 import { ERC1155TokenMock, ERC20TokenMock, ERC721TokenMock, Exchange } from "../types";
@@ -25,6 +25,7 @@ const AssetType = {
     ERC20: 0,
     ERC721: 1,
     ERC1155: 2,
+    ETH: 3,
 };
 
 type OrderToSign = {
@@ -84,7 +85,10 @@ const badSig = {
 };
 
 describe("Test Exchange contract", function () {
-    let owner: SignerWithAddress, other: SignerWithAddress;
+    let owner: SignerWithAddress,
+        other: SignerWithAddress,
+        third: SignerWithAddress,
+        treasury: SignerWithAddress;
     let exchange: Exchange,
         token: ERC20TokenMock,
         nft: ERC721TokenMock,
@@ -97,12 +101,12 @@ describe("Test Exchange contract", function () {
     }
 
     this.beforeAll(async function () {
-        [owner, other] = await ethers.getSigners();
+        [owner, other, third, treasury] = await ethers.getSigners();
     });
 
     this.beforeEach(async function () {
         const ExchangeFactory = await ethers.getContractFactory("Exchange");
-        exchange = (await ExchangeFactory.deploy()) as Exchange;
+        exchange = (await ExchangeFactory.deploy(treasury.address, 0)) as Exchange;
 
         const ERC20TokenMockFactory = await ethers.getContractFactory("ERC20TokenMock");
         token = (await ERC20TokenMockFactory.connect(other).deploy(
@@ -118,7 +122,7 @@ describe("Test Exchange contract", function () {
         this.beforeEach(async function () {
             // Deploy ERC721
             const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
-            nft = (await ERC721TokenMockFactory.deploy()) as ERC721TokenMock;
+            nft = (await ERC721TokenMockFactory.deploy(0)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
             await nft.multipleAwardItem(owner.address, 1);
@@ -241,6 +245,165 @@ describe("Test Exchange contract", function () {
                 "Exchange: order is in wrong state",
             );
         });
+
+        it("Can't match expired order", async function () {
+            await increaseTime(1000);
+            await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
+                "LibOrder: order expired",
+            );
+        });
+
+        it("Can buy order with ETH", async function () {
+            orderToSign.payment.assetType = AssetType.ETH;
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(owner, orderToSign),
+            };
+            await exchange.connect(other).matchOrder(order, [], { value: parseUnits("1") });
+        });
+
+        it("Can't buy order with ETH with invalid value", async function () {
+            orderToSign.payment.assetType = AssetType.ETH;
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(owner, orderToSign),
+            };
+            await expect(
+                exchange.connect(other).matchOrder(order, [], { value: parseUnits("0.5") }),
+            ).to.be.revertedWith("LibOrder: message value to low");
+        });
+    });
+
+    describe("Sell order royalties and fees", function () {
+        this.beforeEach(async function () {
+            // Deploy ERC721
+            const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
+            nft = (await ERC721TokenMockFactory.deploy(1000)) as ERC721TokenMock;
+            await nft.setApprovalForAll(exchange.address, true);
+            await nft.connect(other).setApprovalForAll(exchange.address, true);
+            await nft.multipleAwardItem(owner.address, 1);
+            await nft.transferFrom(owner.address, third.address, 1);
+            await nft.connect(third).setApprovalForAll(exchange.address, true);
+
+            await exchange.setFee(1000);
+
+            // Sign order
+            orderToSign = {
+                account: third.address,
+                side: OrderSide.Sell,
+                commodity: {
+                    assetType: AssetType.ERC721,
+                    token: nft.address,
+                    id: 1,
+                    amount: 0,
+                },
+                payment: {
+                    assetType: AssetType.ERC20,
+                    token: token.address,
+                    id: 0,
+                    amount: parseUnits("1000"),
+                },
+                expiry: block.timestamp + 1000,
+                nonce: 1,
+            };
+
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(third, orderToSign),
+            };
+        });
+
+        it("Matching order collects correct royalties and fees", async function () {
+            await exchange.connect(other).matchOrder(order, []);
+
+            expect(await token.balanceOf(other.address)).to.equal(parseUnits("99000"));
+            expect(await token.balanceOf(owner.address)).to.equal(parseUnits("100"));
+            expect(await token.balanceOf(treasury.address)).to.equal(parseUnits("100"));
+            expect(await token.balanceOf(third.address)).to.equal(parseUnits("800"));
+        });
+
+        it("Matching ETH order collects correct royalties and fees", async function () {
+            orderToSign.payment.assetType = AssetType.ETH;
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(third, orderToSign),
+            };
+
+            const otherBefore = await other.getBalance();
+            const ownerBefore = await owner.getBalance();
+            const treasuryBefore = await treasury.getBalance();
+            const thirdBefore = await third.getBalance();
+
+            const tx = await exchange
+                .connect(other)
+                .matchOrder(order, [], { value: parseUnits("1000") });
+            const receipt = await tx.wait();
+
+            const otherAfter = await other.getBalance();
+            expect(otherBefore.sub(otherAfter)).to.equal(
+                parseUnits("1000").add(receipt.gasUsed.mul(receipt.effectiveGasPrice)),
+            );
+            const ownerAfter = await owner.getBalance();
+            expect(ownerAfter.sub(ownerBefore)).to.equal(parseUnits("100"));
+            const treasuryAfter = await treasury.getBalance();
+            expect(treasuryAfter.sub(treasuryBefore)).to.equal(parseUnits("100"));
+            const thirdAfter = await third.getBalance();
+            expect(thirdAfter.sub(thirdBefore)).to.equal(parseUnits("800"));
+        });
+    });
+
+    describe("Buy order royalties and fees", function () {
+        this.beforeEach(async function () {
+            // Deploy ERC721
+            const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
+            nft = (await ERC721TokenMockFactory.deploy(1000)) as ERC721TokenMock;
+            await nft.setApprovalForAll(exchange.address, true);
+            await nft.connect(other).setApprovalForAll(exchange.address, true);
+            await nft.multipleAwardItem(owner.address, 1);
+            await nft.transferFrom(owner.address, third.address, 1);
+            await nft.connect(third).setApprovalForAll(exchange.address, true);
+
+            await exchange.setFee(1000);
+
+            // Sign order
+            orderToSign = {
+                account: other.address,
+                side: OrderSide.Buy,
+                commodity: {
+                    assetType: AssetType.ERC721,
+                    token: nft.address,
+                    id: 1,
+                    amount: 0,
+                },
+                payment: {
+                    assetType: AssetType.ERC20,
+                    token: token.address,
+                    id: 0,
+                    amount: parseUnits("1000"),
+                },
+                expiry: block.timestamp + 1000,
+                nonce: 1,
+            };
+
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(other, orderToSign),
+            };
+        });
+
+        it("Matching order collects correct royalties and fees", async function () {
+            await exchange.connect(third).matchOrder(order, []);
+
+            expect(await token.balanceOf(other.address)).to.equal(parseUnits("99000"));
+            expect(await token.balanceOf(owner.address)).to.equal(parseUnits("100"));
+            expect(await token.balanceOf(treasury.address)).to.equal(parseUnits("100"));
+            expect(await token.balanceOf(third.address)).to.equal(parseUnits("800"));
+        });
     });
 
     describe("Sell orders for ERC1155", async function () {
@@ -354,7 +517,7 @@ describe("Test Exchange contract", function () {
         this.beforeEach(async function () {
             // Deploy ERC721
             const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
-            nft = (await ERC721TokenMockFactory.deploy()) as ERC721TokenMock;
+            nft = (await ERC721TokenMockFactory.deploy(0)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
             await nft.multipleAwardItem(owner.address, 1);
