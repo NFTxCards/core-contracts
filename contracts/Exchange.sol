@@ -3,12 +3,13 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./TokenTrader.sol";
 import "./lib/LibOrder.sol";
 import "./interfaces/IERC20Permit.sol";
 import "./interfaces/IERC721Permit.sol";
 import "./interfaces/IERC1155Permit.sol";
 
-contract Exchange is Ownable {
+contract Exchange is Ownable, TokenTrader {
     using LibOrder for LibOrder.Order;
 
     bytes32 private constant EIP712_DOMAIN_TYPEHASH =

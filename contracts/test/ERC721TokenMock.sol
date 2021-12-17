@@ -4,14 +4,18 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "../ERC721Permit.sol";
 import "../ERC721Royalties.sol";
+import "../ERC721Mintable.sol";
 
-contract ERC721TokenMock is ERC721Permit, ERC721Royalties {
+contract ERC721TokenMock is ERC721Permit, ERC721Royalties, ERC721Mintable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
     mapping(address => bool) blacklist;
 
-    constructor(uint256 royaltyValue) ERC721("Mock Token", "MOCK") {
+    constructor(address minter, uint256 royaltyValue)
+        ERC721("Mock Token", "MOCK")
+        ERC721Mintable(minter)
+    {
         blacklist[0x0000000000000000000000000000000000000001] = true;
         _setRoyaltyValue(royaltyValue);
     }
@@ -38,7 +42,7 @@ contract ERC721TokenMock is ERC721Permit, ERC721Royalties {
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721Permit, ERC721Royalties)
+        override(ERC721Permit, ERC721Royalties, ERC721)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
