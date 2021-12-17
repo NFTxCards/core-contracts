@@ -2,15 +2,16 @@
 pragma solidity ^0.8.9;
 
 import "../ERC1155Permit.sol";
+import "../ERC1155Mintable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract ERC1155TokenMock is ERC1155Permit {
+contract ERC1155TokenMock is ERC1155Permit, ERC1155Mintable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
     mapping(address => bool) blacklist;
 
-    constructor() ERC1155("Mock 1155 Token") {
+    constructor(address minter) ERC1155("Mock 1155 Token") ERC1155Mintable(minter) {
         blacklist[0x0000000000000000000000000000000000000001] = true;
     }
 
@@ -27,7 +28,6 @@ contract ERC1155TokenMock is ERC1155Permit {
         }
     }
 
-    //address,address,uint256,uint256,bytes
     function safeTransferFrom(
         address from,
         address to,
@@ -37,5 +37,14 @@ contract ERC1155TokenMock is ERC1155Permit {
     ) public override {
         require(!blacklist[to], "this address is in the blacklist");
         super.safeTransferFrom(from, to, tokenId, amount, data);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC1155Permit, ERC1155)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 }

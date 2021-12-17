@@ -2,7 +2,13 @@ import { ethers, network } from "hardhat";
 import { increaseTime, signMessage } from "./utils";
 
 import { expect } from "chai";
-import { ERC1155TokenMock, ERC20TokenMock, ERC721TokenMock, Exchange } from "../types";
+import {
+    ERC1155TokenMock,
+    ERC20TokenMock,
+    ERC721TokenMock,
+    ERC721TokenMock__factory,
+    Exchange,
+} from "../types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumberish, BytesLike } from "ethers";
 import { Block } from "@ethersproject/abstract-provider";
@@ -122,7 +128,7 @@ describe("Test Exchange contract", function () {
         this.beforeEach(async function () {
             // Deploy ERC721
             const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
-            nft = (await ERC721TokenMockFactory.deploy(0)) as ERC721TokenMock;
+            nft = (await ERC721TokenMockFactory.deploy(owner.address, 0)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
             await nft.multipleAwardItem(owner.address, 1);
@@ -280,7 +286,7 @@ describe("Test Exchange contract", function () {
         this.beforeEach(async function () {
             // Deploy ERC721
             const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
-            nft = (await ERC721TokenMockFactory.deploy(1000)) as ERC721TokenMock;
+            nft = (await ERC721TokenMockFactory.deploy(owner.address, 1000)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
             await nft.multipleAwardItem(owner.address, 1);
@@ -360,7 +366,7 @@ describe("Test Exchange contract", function () {
         this.beforeEach(async function () {
             // Deploy ERC721
             const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
-            nft = (await ERC721TokenMockFactory.deploy(1000)) as ERC721TokenMock;
+            nft = (await ERC721TokenMockFactory.deploy(owner.address, 1000)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
             await nft.multipleAwardItem(owner.address, 1);
@@ -410,7 +416,7 @@ describe("Test Exchange contract", function () {
         this.beforeEach(async function () {
             // Deploy ERC1155
             const ERC1155TokenMockFactory = await ethers.getContractFactory("ERC1155TokenMock");
-            multiToken = (await ERC1155TokenMockFactory.deploy()) as ERC1155TokenMock;
+            multiToken = (await ERC1155TokenMockFactory.deploy(owner.address)) as ERC1155TokenMock;
             await multiToken.setApprovalForAll(exchange.address, true);
             await multiToken.connect(other).setApprovalForAll(exchange.address, true);
             await multiToken.multipleAwardItem(owner.address, 1, 10);
@@ -517,7 +523,7 @@ describe("Test Exchange contract", function () {
         this.beforeEach(async function () {
             // Deploy ERC721
             const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
-            nft = (await ERC721TokenMockFactory.deploy(0)) as ERC721TokenMock;
+            nft = (await ERC721TokenMockFactory.deploy(owner.address, 0)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
             await nft.multipleAwardItem(owner.address, 1);
@@ -620,7 +626,7 @@ describe("Test Exchange contract", function () {
         this.beforeEach(async function () {
             // Deploy ERC1155
             const ERC1155TokenMockFactory = await ethers.getContractFactory("ERC1155TokenMock");
-            multiToken = (await ERC1155TokenMockFactory.deploy()) as ERC1155TokenMock;
+            multiToken = (await ERC1155TokenMockFactory.deploy(owner.address)) as ERC1155TokenMock;
             await multiToken.setApprovalForAll(exchange.address, true);
             await multiToken.connect(other).setApprovalForAll(exchange.address, true);
             await multiToken.multipleAwardItem(owner.address, 1, 10);
