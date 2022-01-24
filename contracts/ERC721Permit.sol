@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "./ERC721A.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./interfaces/IERC721Permit.sol";
 
-abstract contract ERC721Permit is ERC721 {
+abstract contract ERC721Permit is ERC721A {
     mapping(address => uint256) private _nonces;
 
     bytes32 private constant PERMIT_TYPEHASH =
@@ -43,14 +43,14 @@ abstract contract ERC721Permit is ERC721 {
         address signer = ECDSA.recover(digest, v, r, s);
         require(signer == owner, "ERC721Permit: invalid signature");
 
-        address tokenOwner = ERC721.ownerOf(tokenId);
+        address tokenOwner = ownerOf(tokenId);
         require(
             tokenOwner == signer || isApprovedForAll(tokenOwner, signer),
             "ERC721Permit: signer is not owner nor approved for all"
         );
 
         _nonces[signer]++;
-        _approve(spender, tokenId);
+        _approve(spender, tokenId, tokenOwner);
     }
 
     function permitAll(
