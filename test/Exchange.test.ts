@@ -131,7 +131,7 @@ describe("Test Exchange contract", function () {
             nft = (await ERC721TokenMockFactory.deploy(owner.address, 0)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
-            await nft.multipleAwardItem(owner.address, 1);
+            await nft.mint(owner.address, 2);
 
             // Sign order
             orderToSign = {
@@ -173,7 +173,7 @@ describe("Test Exchange contract", function () {
         it("Can't match order without commodity approval and permit", async function () {
             await nft.setApprovalForAll(exchange.address, false);
             await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
-                "ERC721: transfer caller is not owner nor approved",
+                "ERC721A: transfer caller is not owner nor approved",
             );
         });
 
@@ -289,7 +289,7 @@ describe("Test Exchange contract", function () {
             nft = (await ERC721TokenMockFactory.deploy(owner.address, 1000)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
-            await nft.multipleAwardItem(owner.address, 1);
+            await nft.mint(owner.address, 2);
             await nft.transferFrom(owner.address, third.address, 1);
             await nft.connect(third).setApprovalForAll(exchange.address, true);
 
@@ -369,7 +369,7 @@ describe("Test Exchange contract", function () {
             nft = (await ERC721TokenMockFactory.deploy(owner.address, 1000)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
-            await nft.multipleAwardItem(owner.address, 1);
+            await nft.mint(owner.address, 2);
             await nft.transferFrom(owner.address, third.address, 1);
             await nft.connect(third).setApprovalForAll(exchange.address, true);
 
@@ -526,7 +526,7 @@ describe("Test Exchange contract", function () {
             nft = (await ERC721TokenMockFactory.deploy(owner.address, 0)) as ERC721TokenMock;
             await nft.setApprovalForAll(exchange.address, true);
             await nft.connect(other).setApprovalForAll(exchange.address, true);
-            await nft.multipleAwardItem(owner.address, 1);
+            await nft.mint(owner.address, 2);
 
             // Sign order
             orderToSign = {
@@ -565,7 +565,7 @@ describe("Test Exchange contract", function () {
         it("Can't match order without commodity approval and permit", async function () {
             await nft.setApprovalForAll(exchange.address, false);
             await expect(exchange.matchOrder(order, [])).to.be.revertedWith(
-                "ERC721: transfer caller is not owner nor approved",
+                "ERC721A: transfer caller is not owner nor approved",
             );
         });
 

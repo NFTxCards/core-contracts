@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "./ERC721A.sol";
 
-abstract contract ERC721Mintable is ERC721 {
+abstract contract ERC721Mintable is ERC721A {
     address public minter;
 
     constructor(address minter_) {
         minter = minter_;
     }
 
-    function mint(address to, uint256 tokenId) external onlyMinter {
-        _mint(to, tokenId);
+    function mint(address to, uint256 quantity) external onlyMinter {
+        _safeMint(to, quantity);
     }
 
     modifier onlyMinter() {

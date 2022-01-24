@@ -24,10 +24,10 @@ contract TokenTrader is Ownable {
         require(tradeInfo[asset.token].enabled, "TokenTrader: token sale not enabled");
         if (asset.assetType == LibAsset.AssetType.ERC721) {
             require(
-                msg.value >= tradeInfo[asset.token].price,
+                msg.value >= tradeInfo[asset.token].price * asset.amount,
                 "TokenTrader: message value too low"
             );
-            IERC721Mintable(asset.token).mint(msg.sender, asset.id);
+            IERC721Mintable(asset.token).mint(msg.sender, asset.amount);
         } else if (asset.assetType == LibAsset.AssetType.ERC1155) {
             require(
                 msg.value >= tradeInfo[asset.token].price * asset.amount,

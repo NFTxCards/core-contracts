@@ -106,7 +106,7 @@ library LibOrder {
         uint256 royaltyAmount;
         {
             (address receiver, uint256 royalty) = commodity.getRoyalty();
-            royaltyAmount = (payment.amount * royalty) / 10000;
+            royaltyAmount = ((payment.amount * royalty) / 10000) * (receiver != address(0) ? 1 : 0);
             if (royaltyAmount > 0) {
                 payment.withAmount(royaltyAmount).transfer(from, receiver);
             }

@@ -63,13 +63,26 @@ describe("Test TokenTrader contract", function () {
         it("Can buy ERC721 with correct arguments", async function () {
             await expect(
                 trader.buy(
-                    { assetType: AssetType.ERC721, token: nft.address, id: 1, amount: 1 },
+                    { assetType: AssetType.ERC721, token: nft.address, id: 0, amount: 1 },
                     { value: parseUnits("1") },
                 ),
             ).to.emit(trader, "TokenBought");
 
-            expect(await nft.ownerOf(1)).to.equal(owner.address);
+            expect(await nft.ownerOf(0)).to.equal(owner.address);
             expect(await ethers.provider.getBalance(trader.address)).to.equal(parseUnits("1"));
+        });
+
+        it("Can buy multiple ERC721 with correct arguments", async function () {
+            await expect(
+                trader.buy(
+                    { assetType: AssetType.ERC721, token: nft.address, id: 0, amount: 2 },
+                    { value: parseUnits("2") },
+                ),
+            ).to.emit(trader, "TokenBought");
+
+            expect(await nft.ownerOf(0)).to.equal(owner.address);
+            expect(await nft.ownerOf(1)).to.equal(owner.address);
+            expect(await ethers.provider.getBalance(trader.address)).to.equal(parseUnits("2"));
         });
 
         it("Owner and only owner can withdraw", async function () {
