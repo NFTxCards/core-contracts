@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./TokenTrader.sol";
 import "./lib/LibOrder.sol";
 import "./interfaces/IERC20Permit.sol";
 import "./interfaces/IERC721Permit.sol";
 import "./interfaces/IERC1155Permit.sol";
 
-contract Exchange is Ownable, TokenTrader {
+contract Exchange is OwnableUpgradeable, TokenTrader {
     using LibOrder for LibOrder.Order;
 
     bytes32 private constant EIP712_DOMAIN_TYPEHASH =
@@ -36,9 +36,10 @@ contract Exchange is Ownable, TokenTrader {
 
     // CONSTRUCTOR
 
-    constructor(address treasury_, uint256 fee_) {
+    function initialize(address treasury_, uint256 fee_) external initializer {
         require(fee_ < 5000, "Exchange: invalid fee");
 
+        __TokenTrader_init();
         treasury = treasury_;
         fee = fee_;
     }
@@ -69,7 +70,7 @@ contract Exchange is Ownable, TokenTrader {
         LibSig.checkSig(order.orderSig, digest, order.account);
 
         orderStates[orderHash] = OrderState.Executed;
-        order.matchOrder(msg.sender, permitSig, treasury, fee);
+        order.matchOrder(permitSig, treasury, fee);
         emit OrderMatch(order, msg.sender);
     }
 

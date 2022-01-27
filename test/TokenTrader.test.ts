@@ -21,6 +21,7 @@ describe("Test TokenTrader contract", function () {
 
         const TokenTraderFactory = await ethers.getContractFactory("TokenTrader");
         trader = (await TokenTraderFactory.deploy()) as TokenTrader;
+        await trader.__TokenTrader_init();
     });
 
     describe("Buying ERC721", async function () {

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 import "../interfaces/IERC721Royalties.sol";
 import "../interfaces/IERC20Permit.sol";
 import "../interfaces/IERC721Permit.sol";
@@ -10,8 +10,8 @@ import "../interfaces/IERC1155Permit.sol";
 import "./LibSig.sol";
 
 library LibAsset {
-    using SafeERC20 for IERC20Permit;
-    using ERC165Checker for address;
+    using SafeERC20Upgradeable for IERC20Permit;
+    using ERC165CheckerUpgradeable for address;
 
     /// @notice Order hash for EIP712
     bytes32 private constant ASSET_TYPEHASH =
