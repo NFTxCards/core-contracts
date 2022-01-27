@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./lib/LibAsset.sol";
 import "./interfaces/IERC721Mintable.sol";
 import "./interfaces/IERC1155Mintable.sol";
 
-contract TokenTrader is Ownable {
+contract TokenTrader is OwnableUpgradeable {
     struct TradeInfo {
         bool enabled;
         uint256 price;
@@ -17,6 +17,12 @@ contract TokenTrader is Ownable {
     // EVENTS
 
     event TokenBought(LibAsset.Asset asset);
+
+    // CONSTRUCTOR
+
+    function __TokenTrader_init() public initializer {
+        __Ownable_init();
+    }
 
     // PUBLIC FUNCTIONS
 

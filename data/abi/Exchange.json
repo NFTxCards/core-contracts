@@ -1,21 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "treasury_",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fee_",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -23,6 +7,11 @@
           {
             "internalType": "address",
             "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "taker",
             "type": "address"
           },
           {
@@ -139,6 +128,11 @@
           {
             "internalType": "address",
             "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "taker",
             "type": "address"
           },
           {
@@ -308,6 +302,13 @@
     "type": "event"
   },
   {
+    "inputs": [],
+    "name": "__TokenTrader_init",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "components": [
@@ -349,6 +350,11 @@
           {
             "internalType": "address",
             "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "taker",
             "type": "address"
           },
           {
@@ -487,10 +493,33 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "treasury_",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fee_",
+        "type": "uint256"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "components": [
           {
             "internalType": "address",
             "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "taker",
             "type": "address"
           },
           {

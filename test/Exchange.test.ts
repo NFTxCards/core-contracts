@@ -1,14 +1,8 @@
-import { ethers, network } from "hardhat";
+import { ethers, network, upgrades } from "hardhat";
 import { increaseTime, signMessage } from "./utils";
 
 import { expect } from "chai";
-import {
-    ERC1155TokenMock,
-    ERC20TokenMock,
-    ERC721TokenMock,
-    ERC721TokenMock__factory,
-    Exchange,
-} from "../types";
+import { ERC1155TokenMock, ERC20TokenMock, ERC721TokenMock, Exchange } from "../types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumberish, BytesLike } from "ethers";
 import { Block } from "@ethersproject/abstract-provider";
@@ -20,6 +14,7 @@ import {
 } from "./utils/permits";
 
 const parseUnits = ethers.utils.parseUnits;
+const { AddressZero } = ethers.constants;
 const chainId = network.config.chainId!;
 
 const OrderSide = {
@@ -36,6 +31,7 @@ const AssetType = {
 
 type OrderToSign = {
     account: string;
+    taker: string;
     side: BigNumberish;
     commodity: {
         assetType: BigNumberish;
@@ -70,6 +66,7 @@ const Domain = (exchange: Exchange) => ({
 const TypesOrder = {
     Order: [
         { name: "account", type: "address" },
+        { name: "taker", type: "address" },
         { name: "side", type: "uint8" },
         { name: "commodity", type: "Asset" },
         { name: "payment", type: "Asset" },
@@ -112,7 +109,7 @@ describe("Test Exchange contract", function () {
 
     this.beforeEach(async function () {
         const ExchangeFactory = await ethers.getContractFactory("Exchange");
-        exchange = (await ExchangeFactory.deploy(treasury.address, 0)) as Exchange;
+        exchange = (await upgrades.deployProxy(ExchangeFactory, [treasury.address, 0])) as Exchange;
 
         const ERC20TokenMockFactory = await ethers.getContractFactory("ERC20TokenMock");
         token = (await ERC20TokenMockFactory.connect(other).deploy(
@@ -136,6 +133,7 @@ describe("Test Exchange contract", function () {
             // Sign order
             orderToSign = {
                 account: owner.address,
+                taker: AddressZero,
                 side: OrderSide.Sell,
                 commodity: {
                     assetType: AssetType.ERC721,
@@ -175,6 +173,28 @@ describe("Test Exchange contract", function () {
             await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
                 "ERC721A: transfer caller is not owner nor approved",
             );
+        });
+
+        it("Can't match with wrong taker if fixed taker is specified", async function () {
+            orderToSign.taker = third.address;
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(owner, orderToSign),
+            };
+            await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
+                "LibOrder: invalid taker",
+            );
+        });
+
+        it("Can match for fixed taker with this taker", async function () {
+            orderToSign.taker = other.address;
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(owner, orderToSign),
+            };
+            await exchange.connect(other).matchOrder(order, []);
         });
 
         it("Can match order without commodity approval but with permit", async function () {
@@ -298,6 +318,7 @@ describe("Test Exchange contract", function () {
             // Sign order
             orderToSign = {
                 account: third.address,
+                taker: AddressZero,
                 side: OrderSide.Sell,
                 commodity: {
                     assetType: AssetType.ERC721,
@@ -378,6 +399,7 @@ describe("Test Exchange contract", function () {
             // Sign order
             orderToSign = {
                 account: other.address,
+                taker: AddressZero,
                 side: OrderSide.Buy,
                 commodity: {
                     assetType: AssetType.ERC721,
@@ -424,6 +446,7 @@ describe("Test Exchange contract", function () {
             // Sign order
             orderToSign = {
                 account: owner.address,
+                taker: AddressZero,
                 side: OrderSide.Sell,
                 commodity: {
                     assetType: AssetType.ERC1155,
@@ -463,6 +486,28 @@ describe("Test Exchange contract", function () {
             await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
                 "ERC1155: caller is not owner nor approved",
             );
+        });
+
+        it("Can't match with wrong taker if fixed taker is specified", async function () {
+            orderToSign.taker = third.address;
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(owner, orderToSign),
+            };
+            await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
+                "LibOrder: invalid taker",
+            );
+        });
+
+        it("Can match for fixed taker with this taker", async function () {
+            orderToSign.taker = other.address;
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(owner, orderToSign),
+            };
+            await exchange.connect(other).matchOrder(order, []);
         });
 
         it("Can match order without commodity approval but with permit", async function () {
@@ -531,6 +576,7 @@ describe("Test Exchange contract", function () {
             // Sign order
             orderToSign = {
                 account: other.address,
+                taker: AddressZero,
                 side: OrderSide.Buy,
                 commodity: {
                     assetType: AssetType.ERC721,
@@ -634,6 +680,7 @@ describe("Test Exchange contract", function () {
             // Sign order
             orderToSign = {
                 account: other.address,
+                taker: AddressZero,
                 side: OrderSide.Buy,
                 commodity: {
                     assetType: AssetType.ERC1155,

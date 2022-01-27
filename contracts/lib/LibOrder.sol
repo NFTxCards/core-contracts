@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./LibAsset.sol";
 
 library LibOrder {
@@ -10,7 +9,7 @@ library LibOrder {
     /// @notice Order hash for EIP712
     bytes32 private constant ORDER_TYPEHASH =
         keccak256(
-            "Order(address account,uint8 side,Asset commodity,Asset payment,uint64 expiry,uint8 nonce)Asset(uint8 assetType,address token,uint256 id,uint256 amount)"
+            "Order(address account,address taker,uint8 side,Asset commodity,Asset payment,uint64 expiry,uint8 nonce)Asset(uint8 assetType,address token,uint256 id,uint256 amount)"
         );
 
     enum OrderSide {
@@ -20,6 +19,7 @@ library LibOrder {
 
     struct Order {
         address account;
+        address taker;
         OrderSide side;
         LibAsset.Asset commodity;
         LibAsset.Asset payment;
@@ -35,6 +35,7 @@ library LibOrder {
                 abi.encode(
                     ORDER_TYPEHASH,
                     order.account,
+                    order.taker,
                     order.side,
                     order.commodity.hashAsset(),
                     order.payment.hashAsset(),
@@ -46,11 +47,11 @@ library LibOrder {
 
     function matchOrder(
         Order memory order,
-        address taker,
         bytes memory takerPermitSig,
         address treasury,
         uint256 fee
     ) internal {
+        require(order.taker == address(0) || order.taker == msg.sender, "LibOrder: invalid taker");
         require(order.commodity.isCommodity(), "LibOrder: commodity is not correct");
         require(
             order.payment.isPayment(order.side == OrderSide.Buy),
@@ -64,22 +65,22 @@ library LibOrder {
                 order.permitSig,
                 order.commodity,
                 order.account,
-                taker,
+                msg.sender,
                 treasury,
                 fee
             );
-            order.commodity.permitTransfer(takerPermitSig, taker, order.account);
+            order.commodity.permitTransfer(takerPermitSig, msg.sender, order.account);
         } else {
             transferPayment(
                 order.payment,
                 takerPermitSig,
                 order.commodity,
-                taker,
+                msg.sender,
                 order.account,
                 treasury,
                 fee
             );
-            order.commodity.permitTransfer(order.permitSig, order.account, taker);
+            order.commodity.permitTransfer(order.permitSig, order.account, msg.sender);
         }
     }
 
