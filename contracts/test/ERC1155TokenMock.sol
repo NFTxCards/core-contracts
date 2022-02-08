@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "../ERC1155Permit.sol";
-import "../ERC1155Mintable.sol";
+import "../tokens/ERC1155Permit.sol";
+import "../tokens/ERC1155Mintable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract ERC1155TokenMock is ERC1155Permit, ERC1155Mintable {
