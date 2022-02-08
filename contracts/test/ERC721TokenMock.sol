@@ -2,9 +2,9 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "../ERC721Permit.sol";
-import "../ERC721Royalties.sol";
-import "../ERC721Mintable.sol";
+import "../tokens/ERC721Permit.sol";
+import "../tokens/ERC721Royalties.sol";
+import "../tokens/ERC721Mintable.sol";
 
 contract ERC721TokenMock is ERC721Permit, ERC721Royalties, ERC721Mintable {
     constructor(address minter, uint256 royaltyValue)

@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "./interfaces/IERC1155Permit.sol";
+import "../interfaces/IERC1155Permit.sol";
 
 abstract contract ERC1155Permit is ERC1155 {
     mapping(address => uint256) private _nonces;
