@@ -9,6 +9,12 @@ import "@openzeppelin/hardhat-upgrades";
 import { HardhatUserConfig } from "hardhat/config";
 require("dotenv").config();
 
+const ethereumConfig = {
+    url: process.env.INFURA_API_KEY || "",
+    accounts:
+      process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+};
+
 const config: HardhatUserConfig = {
     solidity: {
         version: "0.8.9",
@@ -20,31 +26,25 @@ const config: HardhatUserConfig = {
         },
     },
     networks: {
-        goerli: {
-            url: `https://goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
-            accounts: [`${process.env.PRIVATE_KEY}`],
-        },
-        mainnet: {
-            url: `https://mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
-            accounts: [`${process.env.PRIVATE_KEY}`],
-        },
+        goerli: ethereumConfig,
+        mainnet: ethereumConfig,
         bsc: {
             url: "https://bsc-dataseed.binance.org/",
             chainId: 56,
             gasPrice: 20000000000,
-            accounts: [`${process.env.PRIVATE_KEY}`],
+            accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
         },
         matic: {
             url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
             chainId: 137,
             gasPrice: 5000000000,
-            accounts: [`${process.env.PRIVATE_KEY}`],
+            accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
         },
         xdai: {
             url: "https://xdai.stormdapps.com",
             chainId: 100,
             gasPrice: 20000000000,
-            accounts: [`${process.env.PRIVATE_KEY}`],
+            accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
         },
     },
     abiExporter: {
