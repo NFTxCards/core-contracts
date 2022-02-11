@@ -11,7 +11,8 @@ async function main() {
     // Deployment
     const ExchangeFactory = await ethers.getContractFactory("Exchange");
     const exchange = await upgrades.deployProxy(ExchangeFactory, [
-        process.env.TREASURY!,
+        // process.env.TREASURY!,
+        sender.address,
         process.env.FEE!,
     ]);
     await exchange.deployed();
@@ -26,9 +27,9 @@ async function main() {
         console.log("Sleeping before verification...");
         await sleep(20000);
 
-        await hre.run("verify:verify", {
-            address: impl.address,
-        });
+        // await hre.run("verify:verify", {
+        //     address: impl.address,
+        // });
     }
 }
 
