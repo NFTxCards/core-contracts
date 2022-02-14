@@ -2,7 +2,13 @@ import { ethers, network, upgrades } from "hardhat";
 import { increaseTime, signMessage } from "./utils";
 
 import { expect } from "chai";
-import { ERC1155TokenMock, ERC20TokenMock, ERC721TokenMock, Exchange } from "../types";
+import {
+    ERC1155TokenMock,
+    ERC20TokenMock,
+    ERC721TokenMock,
+    Exchange,
+    OrderMatcher,
+} from "../types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumberish, BytesLike } from "ethers";
 import { Block } from "@ethersproject/abstract-provider";
@@ -119,6 +125,37 @@ describe("Test Exchange contract", function () {
         await token.connect(other).approve(exchange.address, ethers.constants.MaxUint256);
 
         block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber());
+    });
+
+    describe("Configuration", async function () {
+        it("Can't deploy with invalid fee", async function () {
+            const ExchangeFactory = await ethers.getContractFactory("Exchange");
+            exchange = (await ExchangeFactory.deploy(treasury.address, 0)) as Exchange;
+        });
+
+        it("Owner and only owner can set treasury", async function () {
+            await expect(exchange.connect(other).setTreasury(other.address)).to.be.revertedWith(
+                "Ownable: caller is not the owner",
+            );
+
+            await expect(exchange.setTreasury(ethers.constants.AddressZero)).to.be.revertedWith(
+                "Exchange: zero address",
+            );
+
+            await exchange.setTreasury(owner.address);
+            expect(await exchange.treasury()).to.equal(owner.address);
+        });
+
+        it("Owner and only owner can set fee", async function () {
+            await expect(exchange.connect(other).setFee(10)).to.be.revertedWith(
+                "Ownable: caller is not the owner",
+            );
+
+            await expect(exchange.setFee(2001)).to.be.revertedWith("Exchange: invalid fee");
+
+            await exchange.setFee(1000);
+            expect(await exchange.fee()).to.equal(1000);
+        });
     });
 
     describe("Sell orders for ERC721", async function () {
@@ -381,6 +418,46 @@ describe("Test Exchange contract", function () {
             const thirdAfter = await third.getBalance();
             expect(thirdAfter.sub(thirdBefore)).to.equal(parseUnits("800"));
         });
+
+        it("Trading token with overflowing royalties fails", async function () {
+            const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
+            const nft2 = (await ERC721TokenMockFactory.deploy(
+                owner.address,
+                5000,
+            )) as ERC721TokenMock;
+            await nft2.mint(third.address, 1);
+
+            // Sign order
+            orderToSign = {
+                account: third.address,
+                taker: AddressZero,
+                side: OrderSide.Sell,
+                commodity: {
+                    assetType: AssetType.ERC721,
+                    token: nft2.address,
+                    id: 0,
+                    amount: 0,
+                },
+                payment: {
+                    assetType: AssetType.ERC20,
+                    token: token.address,
+                    id: 0,
+                    amount: parseUnits("1000"),
+                },
+                expiry: block.timestamp + 1000,
+                nonce: 1,
+            };
+
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(third, orderToSign),
+            };
+
+            await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
+                "LibAsset: invalid royalty value",
+            );
+        });
     });
 
     describe("Buy order royalties and fees", function () {
@@ -606,6 +683,16 @@ describe("Test Exchange contract", function () {
 
             expect(await nft.ownerOf(1)).to.equal(other.address);
             expect(await token.balanceOf(owner.address)).to.equal(parseUnits("1"));
+        });
+
+        it("Matching order through contract works", async function () {
+            const OrderMatcherFactory = await ethers.getContractFactory("OrderMatcher");
+            const matcher = (await OrderMatcherFactory.deploy(exchange.address)) as OrderMatcher;
+            await nft.transferFrom(owner.address, matcher.address, 1);
+            await matcher.approveToken(nft.address);
+
+            await matcher.matchOrder(order);
+            expect(await token.balanceOf(matcher.address)).to.equal(parseUnits("1"));
         });
 
         it("Can't match order without commodity approval and permit", async function () {

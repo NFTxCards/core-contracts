@@ -8,7 +8,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "royaltyValue",
+        "name": "royaltyValue_",
         "type": "uint256"
       }
     ],
@@ -157,6 +157,58 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x85bfad8a",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x85bfad8a",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x918b3667",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x918b3667",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xf06bcb53",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xf06bcb53",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xf9ec5562",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xf9ec5562",
+    "outputs": [],
+    "stateMutability": "pure",
     "type": "function"
   },
   {

@@ -5,7 +5,7 @@ import "./ERC721A.sol";
 import "../interfaces/IERC721Royalties.sol";
 
 abstract contract ERC721Royalties is ERC721A {
-    uint256 public constant MAX_ROYALTY_VALUE = 5000;
+    uint256 public constant MAX_ROYALTY_VALUE = 2000;
 
     mapping(uint256 => address) private _royaltyReceivers;
 

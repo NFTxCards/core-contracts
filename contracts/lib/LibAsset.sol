@@ -13,6 +13,8 @@ library LibAsset {
     using SafeERC20Upgradeable for IERC20Permit;
     using ERC165CheckerUpgradeable for address;
 
+    uint256 public constant MAX_ROYALTY_VALUE = 2000;
+
     /// @notice Order hash for EIP712
     bytes32 private constant ASSET_TYPEHASH =
         keccak256("Asset(uint8 assetType,address token,uint256 id,uint256 amount)");
@@ -83,6 +85,7 @@ library LibAsset {
             asset.token.supportsInterface(type(IERC721Royalties).interfaceId)
         ) {
             (receiver, value) = IERC721Royalties(asset.token).getRoyalty(asset.id);
+            require(value <= MAX_ROYALTY_VALUE, "LibAsset: invalid royalty value");
         }
     }
 
@@ -149,7 +152,7 @@ library LibAsset {
         } else if (asset.assetType == AssetType.ERC1155) {
             IERC1155Permit(asset.token).safeTransferFrom(from, to, asset.id, asset.amount, "");
         } else {
-            payable(to).send(asset.amount);
+            payable(to).transfer(asset.amount);
         }
     }
 
@@ -161,7 +164,7 @@ library LibAsset {
     ) internal {
         if (asset.assetType == AssetType.ETH) {
             require(msg.value == asset.amount, "LibAsset: message value to low");
-            payable(to).send(msg.value);
+            payable(to).transfer(msg.value);
         } else {
             if (permitSig.length != 0) {
                 permit(asset, permitSig, from);
