@@ -13,7 +13,8 @@ Smart contracts are constructed in the way to be upgradeable, orders have versio
 
 Users should do these steps to successfully trade on NFTxCards:
 
-- approve (permit) transfers for their assets to Exchange contracts (e.g.: call approveForAll for ERC-721 and ERC1155, approve for ERC-20) - amount of money needed for trade is price + fee on top of that.
+- the contract knows how to work with the permit signature, but also has a fallback on the approve (in accordance with EIP-712)
+- approve transfers for their assets to Exchange contracts (e.g.: call approveForAll for ERC-721 and ERC1155, approve for ERC-20) - amount of money needed for trade is price + fee on top of that.
 - sign trading order via preferred wallet (order is like a statement "I would like to sell my precious crypto kitty for 10 ETH")
 - save this order and signature to the database using NFTxCards protocol API
 
@@ -51,7 +52,7 @@ Users who want to purchase something on NFTxCards should do the following:
 
 ### Commission calculation
 
-- contract there is a variable which is responsible for the total commission of the protocol
+- contract has a variable which is responsible for the total commission of the protocol (set only owner)
 - at the time of execution of the order, the protocol deducts the protocol commission from the transaction amount (valid for ERC20 and ETH, as a payment)
 - some tokens contain their own royalty, which is paid to the previous owner (executed for ERC721)
 
