@@ -59,7 +59,7 @@ Users who want to purchase something on NFTxCards should do the following:
 
 we use a general transfer function that, depending on the type of payment currency, calls one or another sending method
 
-### Token mint
+#### Token mint
 
 we have a token purchase feature, which is necessary to mint tokens from the user side. Which only the exchange contract can call, is passed as a parameter to the token contract.
 
