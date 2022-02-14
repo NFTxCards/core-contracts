@@ -1,0 +1,28 @@
+[
+  {
+    "inputs": [],
+    "name": "MAX_ROYALTY_VALUE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xb2863484",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xb2863484",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  }
+]

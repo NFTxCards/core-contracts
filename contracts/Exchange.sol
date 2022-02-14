@@ -12,6 +12,8 @@ import "./interfaces/IERC1155Permit.sol";
 contract Exchange is OwnableUpgradeable, TokenTrader {
     using LibOrder for LibOrder.Order;
 
+    uint256 public constant MAX_FEE = 2000; // 20%
+
     bytes32 private constant EIP712_DOMAIN_TYPEHASH =
         keccak256(
             "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
@@ -37,7 +39,7 @@ contract Exchange is OwnableUpgradeable, TokenTrader {
     // CONSTRUCTOR
 
     function initialize(address treasury_, uint256 fee_) external initializer {
-        require(fee_ < 5000, "Exchange: invalid fee");
+        require(fee_ <= MAX_FEE, "Exchange: invalid fee");
 
         __TokenTrader_init();
         treasury = treasury_;
@@ -77,12 +79,12 @@ contract Exchange is OwnableUpgradeable, TokenTrader {
     // RESTRICTED FUNCTIONS
 
     function setTreasury(address treasury_) external onlyOwner {
+        require(treasury_ != address(0), "Exchange: zero address");
         treasury = treasury_;
     }
 
     function setFee(uint256 fee_) external onlyOwner {
-        require(fee_ < 5000, "Exchange: invalid fee");
-
+        require(fee_ <= MAX_FEE, "Exchange: invalid fee");
         fee = fee_;
     }
 

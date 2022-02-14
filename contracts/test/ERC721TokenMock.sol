@@ -7,11 +7,12 @@ import "../tokens/ERC721Royalties.sol";
 import "../tokens/ERC721Mintable.sol";
 
 contract ERC721TokenMock is ERC721Permit, ERC721Royalties, ERC721Mintable {
-    constructor(address minter, uint256 royaltyValue)
+    constructor(address minter, uint256 royaltyValue_)
         ERC721A("Mock Token", "MOCK", type(uint256).max)
         ERC721Mintable(minter)
     {
-        _setRoyaltyValue(royaltyValue);
+        // Direct set to bypass check for max value
+        royaltyValue = royaltyValue_;
     }
 
     function supportsInterface(bytes4 interfaceId)
