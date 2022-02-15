@@ -46,6 +46,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "taker",
+            "type": "address"
+          },
+          {
             "internalType": "enum LibOrder.OrderSide",
             "name": "side",
             "type": "uint8"

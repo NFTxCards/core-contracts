@@ -128,9 +128,22 @@ describe("Test Exchange contract", function () {
     });
 
     describe("Configuration", async function () {
-        it("Can't deploy with invalid fee", async function () {
+        it("Can't initialize with wrong treasury", async function () {
             const ExchangeFactory = await ethers.getContractFactory("Exchange");
-            exchange = (await ExchangeFactory.deploy(treasury.address, 0)) as Exchange;
+            exchange = (await ExchangeFactory.deploy()) as Exchange;
+
+            await expect(exchange.initialize(AddressZero, 1000)).to.be.revertedWith(
+                "Exchange: zero address",
+            );
+        });
+
+        it("Can't initialize with invalid fee", async function () {
+            const ExchangeFactory = await ethers.getContractFactory("Exchange");
+            exchange = (await ExchangeFactory.deploy()) as Exchange;
+
+            await expect(exchange.initialize(treasury.address, 2001)).to.be.revertedWith(
+                "Exchange: invalid fee",
+            );
         });
 
         it("Owner and only owner can set treasury", async function () {
@@ -203,6 +216,51 @@ describe("Test Exchange contract", function () {
 
             expect(await nft.ownerOf(1)).to.equal(other.address);
             expect(await token.balanceOf(owner.address)).to.equal(parseUnits("1"));
+        });
+
+        it("Can't match order with wrong commodity", async function () {
+            orderToSign.commodity = {
+                assetType: AssetType.ERC20,
+                token: token.address,
+                id: 0,
+                amount: 1,
+            };
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(owner, orderToSign),
+            };
+            await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
+                "LibOrder: commodity is not correct",
+            );
+        });
+
+        it("Can't match order with wrong payment", async function () {
+            orderToSign.payment = {
+                assetType: AssetType.ERC721,
+                token: nft.address,
+                id: 2,
+                amount: 0,
+            };
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(owner, orderToSign),
+            };
+            await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
+                "LibOrder: payment is not correct",
+            );
+        });
+
+        it("Can't match badly signed order", async function () {
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(third, orderToSign),
+            };
+            await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
+                "LibSig: invalid signature",
+            );
         });
 
         it("Can't match order without commodity approval and permit", async function () {

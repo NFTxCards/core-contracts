@@ -8,7 +8,7 @@ import "../tokens/ERC721Mintable.sol";
 
 contract ERC721TokenMock is ERC721Permit, ERC721Royalties, ERC721Mintable {
     constructor(address minter, uint256 royaltyValue_)
-        ERC721A("Mock Token", "MOCK", type(uint256).max)
+        ERC721A("Mock Token", "MOCK", 10)
         ERC721Mintable(minter)
     {
         // Direct set to bypass check for max value
@@ -26,5 +26,9 @@ contract ERC721TokenMock is ERC721Permit, ERC721Royalties, ERC721Mintable {
 
     function _safeMint(address to, uint256 quantity) internal override(ERC721Royalties, ERC721A) {
         super._safeMint(to, quantity);
+    }
+
+    function setRoyaltyReceiver(uint256 tokenId, address receiver) external {
+        _setRoyaltyReceiver(tokenId, receiver);
     }
 }

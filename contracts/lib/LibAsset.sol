@@ -162,14 +162,9 @@ library LibAsset {
         address from,
         address to
     ) internal {
-        if (asset.assetType == AssetType.ETH) {
-            require(msg.value == asset.amount, "LibAsset: message value to low");
-            payable(to).transfer(msg.value);
-        } else {
-            if (permitSig.length != 0) {
-                permit(asset, permitSig, from);
-            }
-            transfer(asset, from, to);
+        if (permitSig.length != 0) {
+            permit(asset, permitSig, from);
         }
+        transfer(asset, from, to);
     }
 }

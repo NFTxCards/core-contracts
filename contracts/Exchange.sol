@@ -39,6 +39,7 @@ contract Exchange is OwnableUpgradeable, TokenTrader {
     // CONSTRUCTOR
 
     function initialize(address treasury_, uint256 fee_) external initializer {
+        require(treasury_ != address(0), "Exchange: zero address");
         require(fee_ <= MAX_FEE, "Exchange: invalid fee");
 
         __TokenTrader_init();

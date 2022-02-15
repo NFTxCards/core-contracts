@@ -16,6 +16,6 @@ library LibSig {
         address account
     ) internal pure {
         address signer = ECDSA.recover(dataHash, sig.v, sig.r, sig.s);
-        require(signer == account, "LibSignature: invalid signature");
+        require(signer == account, "LibSig: invalid signature");
     }
 }
