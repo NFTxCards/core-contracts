@@ -1,33 +1,34 @@
 import { BigNumberish } from "@ethersproject/bignumber";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { Contract } from "ethers";
 import { network, ethers } from "hardhat";
 import { signMessage } from ".";
 import { ERC1155TokenMock, ERC20TokenMock, ERC721TokenMock } from "../../types";
 
 const chainId = network.config.chainId!;
 
-const DomainERC20 = (token: ERC20TokenMock) => ({
+export const DomainERC20 = (token: Contract) => ({
     name: "ERC20Permit",
     version: "1",
     chainId,
     verifyingContract: token.address,
 });
 
-const DomainERC721 = (nft: ERC721TokenMock) => ({
+export const DomainERC721 = (nft: Contract) => ({
     name: "ERC721Permit",
     version: "1",
     chainId,
     verifyingContract: nft.address,
 });
 
-const DomainERC1155 = (multiToken: ERC1155TokenMock) => ({
+export const DomainERC1155 = (multiToken: Contract) => ({
     name: "ERC1155Permit",
     version: "1",
     chainId,
     verifyingContract: multiToken.address,
 });
 
-const TypesERC20 = {
+export const TypesERC20 = {
     Permit: [
         { name: "owner", type: "address" },
         { name: "spender", type: "address" },
@@ -43,7 +44,7 @@ const EncodingTypesERC20 = [
     "tuple(uint8 v, bytes32 r, bytes32 s) sig",
 ];
 
-const TypesERC721 = {
+export const TypesERC721 = {
     Permit: [
         { name: "owner", type: "address" },
         { name: "spender", type: "address" },
@@ -53,7 +54,7 @@ const TypesERC721 = {
     ],
 };
 
-const TypesAllERC721 = {
+export const TypesAllERC721 = {
     PermitAll: [
         { name: "owner", type: "address" },
         { name: "spender", type: "address" },
@@ -69,7 +70,7 @@ const EncodingTypesERC721 = [
     "tuple(uint8 v, bytes32 r, bytes32 s) sig",
 ];
 
-const TypesERC1155 = {
+export const TypesERC1155 = {
     Permit: [
         { name: "owner", type: "address" },
         { name: "spender", type: "address" },
@@ -80,7 +81,7 @@ const TypesERC1155 = {
 
 const EncodingTypesERC1155 = ["uint256 deadline", "tuple(uint8 v, bytes32 r, bytes32 s) sig"];
 
-type ERC20Permit = {
+export type ERC20Permit = {
     owner: string;
     spender: string;
     value: BigNumberish;
@@ -98,7 +99,7 @@ export async function signPermitERC20(
     return coder.encode(EncodingTypesERC20, [permit.value, permit.deadline, sig]);
 }
 
-type ERC721Permit = {
+export type ERC721Permit = {
     owner: string;
     spender: string;
     tokenId: BigNumberish;
@@ -116,7 +117,7 @@ export async function signPermitERC721(
     return coder.encode(EncodingTypesERC721, [false, permit.tokenId, permit.deadline, sig]);
 }
 
-type ERC721PermitAll = {
+export type ERC721PermitAll = {
     owner: string;
     spender: string;
     deadline: BigNumberish;
@@ -133,7 +134,7 @@ export async function signPermitAllERC721(
     return coder.encode(EncodingTypesERC721, [true, 0, permit.deadline, sig]);
 }
 
-type ERC1155Permit = {
+export type ERC1155Permit = {
     owner: string;
     spender: string;
     deadline: BigNumberish;
