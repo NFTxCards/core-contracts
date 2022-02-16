@@ -1,4 +1,4 @@
-# <img src="logo.svg" alt="OpenZeppelin" height="40px">
+# <img src="logo.svg" alt="NFTxCards" height="40px">
 [![codecov](https://codecov.io/gh/NFTxCards/core-contracts/branch/master/graph/badge.svg?token=MEA8BD5FKP)](https://codecov.io/gh/NFTxCards/core-contracts)
 
 ## Overview of the protocol
