@@ -37,7 +37,7 @@ abstract contract ERC721Royalties is ERC721A {
             _royaltyReceivers[tokenId] = receiver;
         }
         uint256 nextTokenId = tokenId + 1;
-        if (_royaltyReceivers[nextTokenId] == address(0)) {
+        if (_exists(nextTokenId) && _royaltyReceivers[nextTokenId] == address(0)) {
             _royaltyReceivers[nextTokenId] = prevReceiver;
         }
     }

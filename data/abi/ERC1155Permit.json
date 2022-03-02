@@ -168,19 +168,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "c__0xb9d3d667",
-        "type": "bytes32"
-      }
-    ],
-    "name": "c_0xb9d3d667",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "account",
         "type": "address"
