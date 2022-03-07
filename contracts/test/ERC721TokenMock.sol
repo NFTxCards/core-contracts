@@ -10,6 +10,7 @@ contract ERC721TokenMock is ERC721Permit, ERC721Royalties, ERC721Mintable {
     constructor(address minter, uint256 royaltyValue_)
         ERC721A("Mock Token", "MOCK", 10)
         ERC721Mintable(minter)
+        ERC721Royalties(0, false)
     {
         // Direct set to bypass check for max value
         royaltyValue = royaltyValue_;
@@ -30,5 +31,13 @@ contract ERC721TokenMock is ERC721Permit, ERC721Royalties, ERC721Mintable {
 
     function setRoyaltyReceiver(uint256 tokenId, address receiver) external {
         _setRoyaltyReceiver(tokenId, receiver);
+    }
+
+    function _transfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override(ERC721Royalties, ERC721A) {
+        super._transfer(from, to, tokenId);
     }
 }

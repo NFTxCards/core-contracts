@@ -27,13 +27,14 @@ describe("Test ERC721Preset contract", function () {
             "base/",
             owner.address,
             10,
+            false,
         )) as ERC721Preset;
     });
 
     it("Can't deploy with wrong royalty", async function () {
         const TokenFactory = await ethers.getContractFactory("ERC721Preset");
         await expect(
-            TokenFactory.deploy("TestToken", "TT", "base/", owner.address, 5000),
+            TokenFactory.deploy("TestToken", "TT", "base/", owner.address, 5000, false),
         ).to.be.revertedWith("ERC721Royalties: invalid royalty value");
     });
 

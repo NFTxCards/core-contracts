@@ -11,6 +11,17 @@ abstract contract ERC721Royalties is ERC721A {
 
     uint256 public royaltyValue;
 
+    bool public immutable changeReceiverAtTransfer;
+
+    // CONSTRUCTOR
+
+    constructor(uint256 royaltyValue_, bool changeReceiverAtTransfer_) {
+        _setRoyaltyValue(royaltyValue_);
+        changeReceiverAtTransfer = changeReceiverAtTransfer_;
+    }
+
+    // PUBLIC FUNCTIONS
+
     function getRoyalty(uint256 tokenId) external view returns (address receiver, uint256 value) {
         receiver = receiverOf(tokenId);
         value = royaltyValue;
@@ -27,6 +38,17 @@ abstract contract ERC721Royalties is ERC721A {
     function _safeMint(address to, uint256 quantity) internal virtual override {
         _royaltyReceivers[currentIndex] = msg.sender;
         super._safeMint(to, quantity);
+    }
+
+    function _transfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override {
+        super._transfer(from, to, tokenId);
+        if (changeReceiverAtTransfer) {
+            _setRoyaltyReceiver(tokenId, from);
+        }
     }
 
     function _setRoyaltyReceiver(uint256 tokenId, address receiver) internal {

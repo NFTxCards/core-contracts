@@ -13,10 +13,14 @@ contract ERC721Preset is ERC721Permit, ERC721URI, ERC721Royalties, ERC721Mintabl
         string memory symbol,
         string memory baseURI,
         address minter,
-        uint256 royaltyValue
-    ) ERC721A(name, symbol, type(uint256).max) ERC721URI(baseURI) ERC721Mintable(minter) {
-        _setRoyaltyValue(royaltyValue);
-    }
+        uint256 royaltyValue,
+        bool changeReceiverAtTransfer
+    )
+        ERC721A(name, symbol, type(uint256).max)
+        ERC721URI(baseURI)
+        ERC721Mintable(minter)
+        ERC721Royalties(royaltyValue, changeReceiverAtTransfer)
+    {}
 
     function supportsInterface(bytes4 interfaceId)
         public
@@ -33,5 +37,13 @@ contract ERC721Preset is ERC721Permit, ERC721URI, ERC721Royalties, ERC721Mintabl
 
     function _baseURI() internal view override(ERC721URI, ERC721A) returns (string memory) {
         return super._baseURI();
+    }
+
+    function _transfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override(ERC721Royalties, ERC721A) {
+        super._transfer(from, to, tokenId);
     }
 }

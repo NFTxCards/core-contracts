@@ -25,6 +25,11 @@
         "internalType": "uint256",
         "name": "royaltyValue",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "changeReceiverAtTransfer",
+        "type": "bool"
       }
     ],
     "stateMutability": "nonpayable",
@@ -169,6 +174,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "changeReceiverAtTransfer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
