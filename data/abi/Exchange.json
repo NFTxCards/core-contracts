@@ -707,6 +707,11 @@
         "type": "address"
       },
       {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
         "internalType": "bool",
         "name": "enabled",
         "type": "bool"
@@ -717,7 +722,30 @@
         "type": "uint256"
       }
     ],
-    "name": "setTradeInfo",
+    "name": "setTradeInfoERC1155",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "setTradeInfoERC721",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -741,9 +769,38 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
-    "name": "tradeInfo",
+    "name": "tradeInfoERC1155",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "tradeInfoERC721",
     "outputs": [
       {
         "internalType": "bool",

@@ -25,8 +25,8 @@ contract ERC721TokenMock is ERC721Permit, ERC721Royalties, ERC721Mintable {
         return super.supportsInterface(interfaceId);
     }
 
-    function _safeMint(address to, uint256 quantity) internal override(ERC721Royalties, ERC721A) {
-        super._safeMint(to, quantity);
+    function _mint(address to, uint256 quantity) internal override(ERC721Royalties, ERC721A) {
+        super._mint(to, quantity);
     }
 
     function setRoyaltyReceiver(uint256 tokenId, address receiver) external {
