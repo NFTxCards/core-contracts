@@ -1,6 +1,6 @@
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
-import { ERC1155TokenMock, ERC721TokenMock, TokenTrader } from "../types";
+import { ERC1155TokenMock, ERC721TokenMock, Exchange } from "../types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const { parseUnits } = ethers.utils;
@@ -12,16 +12,15 @@ const AssetType = {
     ETH: 3,
 };
 
-describe("Test TokenTrader contract", function () {
+describe("Test TokenTrader functionality", function () {
     let owner: SignerWithAddress, other: SignerWithAddress;
-    let trader: TokenTrader;
+    let trader: Exchange;
 
     this.beforeEach(async function () {
         [owner, other] = await ethers.getSigners();
 
-        const TokenTraderFactory = await ethers.getContractFactory("TokenTrader");
-        trader = (await TokenTraderFactory.deploy()) as TokenTrader;
-        await trader.__TokenTrader_init();
+        const ExchangeFactory = await ethers.getContractFactory("Exchange");
+        trader = (await upgrades.deployProxy(ExchangeFactory, [owner.address, 0])) as Exchange;
     });
 
     describe("Buying ERC721", async function () {
@@ -31,7 +30,7 @@ describe("Test TokenTrader contract", function () {
             const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
             nft = (await ERC721TokenMockFactory.deploy(trader.address, 0)) as ERC721TokenMock;
 
-            await trader.setTradeInfo(nft.address, true, parseUnits("1"));
+            await trader.setTradeInfoERC721(nft.address, true, parseUnits("1"));
         });
 
         it("Can't buy with unsuficcient message value", async function () {
@@ -102,24 +101,38 @@ describe("Test TokenTrader contract", function () {
 
         it("Owner and only owner can set trade info", async function () {
             await expect(
-                trader.connect(other).setTradeInfo(nft.address, false, 0),
+                trader.connect(other).setTradeInfoERC721(nft.address, false, 0),
             ).to.be.revertedWith("Ownable: caller is not the owner");
 
-            await trader.setTradeInfo(nft.address, false, 0);
-            const info = await trader.tradeInfo(nft.address);
+            await trader.setTradeInfoERC721(nft.address, false, 0);
+            const info = await trader.tradeInfoERC721(nft.address);
             expect(info.enabled).to.be.false;
             expect(info.price).to.equal(0);
         });
     });
 
-    describe("Buying ERC721", async function () {
+    describe("Buying ERC1155", async function () {
         let multiToken: ERC1155TokenMock;
 
         this.beforeEach(async function () {
             const ERC1155TokenMockFactory = await ethers.getContractFactory("ERC1155TokenMock");
             multiToken = (await ERC1155TokenMockFactory.deploy(trader.address)) as ERC1155TokenMock;
 
-            await trader.setTradeInfo(multiToken.address, true, parseUnits("1"));
+            await trader.setTradeInfoERC1155(multiToken.address, 1, true, parseUnits("1"));
+        });
+
+        it("Can't buy disabled type", async function () {
+            await expect(
+                trader.buy(
+                    {
+                        assetType: AssetType.ERC1155,
+                        token: multiToken.address,
+                        id: 0,
+                        amount: 5,
+                    },
+                    { value: parseUnits("5") },
+                ),
+            ).to.be.revertedWith("TokenTrader: token sale not enabled");
         });
 
         it("Can't buy with unsuficcient message value", async function () {
@@ -148,6 +161,17 @@ describe("Test TokenTrader contract", function () {
                     { value: parseUnits("5") },
                 ),
             ).to.emit(trader, "TokenBought");
+        });
+
+        it("Owner and only owner can set trade info", async function () {
+            await expect(
+                trader.connect(other).setTradeInfoERC1155(multiToken.address, 1, false, 0),
+            ).to.be.revertedWith("Ownable: caller is not the owner");
+
+            await trader.setTradeInfoERC1155(multiToken.address, 1, false, 0);
+            const info = await trader.tradeInfoERC721(multiToken.address);
+            expect(info.enabled).to.be.false;
+            expect(info.price).to.equal(0);
         });
     });
 });
