@@ -7,6 +7,7 @@ import { DomainERC20, ERC20Permit, TypesERC20 } from "./utils/permits";
 import { increaseTime, signMessage } from "./utils";
 import { Signature } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
+import { splitSignature } from "ethers/lib/utils";
 
 describe("Test ERC20Permit contract", function () {
     let owner: SignerWithAddress, other: SignerWithAddress;
@@ -28,7 +29,7 @@ describe("Test ERC20Permit contract", function () {
             deadline: block.timestamp + 50,
             nonce: 0,
         };
-        sig = await signMessage(owner, DomainERC20(token), TypesERC20, permit);
+        sig = splitSignature(await signMessage(owner, DomainERC20(token), TypesERC20, permit));
     });
 
     it("Nonce is valid", async function () {
@@ -53,7 +54,7 @@ describe("Test ERC20Permit contract", function () {
     });
 
     it("Can't permit with wrong signer", async function () {
-        sig = await signMessage(other, DomainERC20(token), TypesERC20, permit);
+        sig = splitSignature(await signMessage(other, DomainERC20(token), TypesERC20, permit));
         await expect(
             token
                 .connect(other)

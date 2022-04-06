@@ -6,6 +6,8 @@ import "./LibAsset.sol";
 library LibOrder {
     using LibAsset for LibAsset.Asset;
 
+    uint256 private constant DENOMINATOR = 10000;
+
     /// @notice Order hash for EIP712
     bytes32 private constant ORDER_TYPEHASH =
         keccak256(
@@ -26,7 +28,7 @@ library LibOrder {
         uint64 expiry;
         uint8 nonce;
         bytes permitSig;
-        LibSig.Signature orderSig;
+        bytes orderSig;
     }
 
     function hashOrder(Order memory order) internal pure returns (bytes32) {
@@ -99,7 +101,7 @@ library LibOrder {
             payment.permit(paymentSig, from);
         }
 
-        uint256 feeAmount = (payment.amount * fee) / 10000;
+        uint256 feeAmount = (payment.amount * fee) / DENOMINATOR;
         if (feeAmount > 0) {
             payment.withAmount(feeAmount).transfer(from, treasury);
         }
@@ -107,7 +109,9 @@ library LibOrder {
         uint256 royaltyAmount;
         {
             (address receiver, uint256 royalty) = commodity.getRoyalty();
-            royaltyAmount = ((payment.amount * royalty) / 10000) * (receiver != address(0) ? 1 : 0);
+            royaltyAmount =
+                ((payment.amount * royalty) / DENOMINATOR) *
+                (receiver != address(0) ? 1 : 0);
             if (royaltyAmount > 0) {
                 payment.withAmount(royaltyAmount).transfer(from, receiver);
             }

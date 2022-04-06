@@ -1,6 +1,5 @@
 import hre, { ethers } from "hardhat";
 import { TypedDataField, TypedDataSigner } from "@ethersproject/abstract-signer";
-import { splitSignature } from "ethers/lib/utils";
 
 /**
  *  Takes a snapshot and returns the ID of the snapshot for restoring later.
@@ -22,7 +21,7 @@ export async function signMessage(
     types: Record<string, TypedDataField[]>,
     message: Record<string, any>,
 ) {
-    return splitSignature(await signer._signTypedData(domain, types, message));
+    return await signer._signTypedData(domain, types, message);
 }
 
 export function getRSVFromSign(signMessage: string) {

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/SignatureCheckerUpgradeable.sol";
 import "./TokenTrader.sol";
 import "./lib/LibOrder.sol";
 import "./interfaces/IERC20Permit.sol";
 import "./interfaces/IERC721Permit.sol";
 import "./interfaces/IERC1155Permit.sol";
 
-contract Exchange is OwnableUpgradeable, TokenTrader {
+contract Exchange is TokenTrader {
     using LibOrder for LibOrder.Order;
+    using LibAsset for LibAsset.Asset;
 
     uint256 public constant MAX_FEE = 2000; // 20%
 
@@ -31,6 +31,8 @@ contract Exchange is OwnableUpgradeable, TokenTrader {
 
     /// @notice Mapping of order hashes to their states
     mapping(bytes32 => OrderState) public orderStates;
+
+    mapping(address => bool) public currencyEnabled;
 
     address public treasury;
 
@@ -68,9 +70,16 @@ contract Exchange is OwnableUpgradeable, TokenTrader {
     function matchOrder(LibOrder.Order memory order, bytes memory permitSig) external payable {
         bytes32 orderHash = order.hashOrder();
         require(orderStates[orderHash] == OrderState.None, "Exchange: order is in wrong state");
+        require(
+            currencyEnabled[order.payment.getCurrency()],
+            "Exchange: payment currency not enabled"
+        );
 
         bytes32 digest = keccak256(abi.encodePacked(uint16(0x1901), domainHash(), orderHash));
-        LibSig.checkSig(order.orderSig, digest, order.account);
+        require(
+            SignatureCheckerUpgradeable.isValidSignatureNow(order.account, digest, order.orderSig),
+            "Exchange: invalid signature"
+        );
 
         orderStates[orderHash] = OrderState.Executed;
         order.matchOrder(permitSig, treasury, fee);
@@ -78,6 +87,10 @@ contract Exchange is OwnableUpgradeable, TokenTrader {
     }
 
     // RESTRICTED FUNCTIONS
+
+    function setCurrencyEnabled(address currency, bool enabled) external onlyOwner {
+        currencyEnabled[currency] = enabled;
+    }
 
     function setTreasury(address treasury_) external onlyOwner {
         require(treasury_ != address(0), "Exchange: zero address");

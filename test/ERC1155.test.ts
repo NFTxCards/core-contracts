@@ -3,9 +3,10 @@ import { expect } from "chai";
 import { ERC1155TokenMock } from "../types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Block } from "@ethersproject/abstract-provider";
-import { TypesERC1155, ERC1155Permit, DomainERC1155 } from "./utils/permits";
+import { TypesERC1155, ERC1155Permit, DomainERC1155, signPermitERC1155 } from "./utils/permits";
 import { increaseTime, signMessage } from "./utils";
 import { Signature } from "ethers";
+import { splitSignature } from "ethers/lib/utils";
 
 describe("Test ERC1155 contract", function () {
     let owner: SignerWithAddress, other: SignerWithAddress;
@@ -26,7 +27,7 @@ describe("Test ERC1155 contract", function () {
             deadline: block.timestamp + 50,
             nonce: 0,
         };
-        sig = await signMessage(owner, DomainERC1155(token), TypesERC1155, permit);
+        sig = splitSignature(await signMessage(owner, DomainERC1155(token), TypesERC1155, permit));
     });
 
     it("Only minter can mint", async function () {
@@ -66,7 +67,7 @@ describe("Test ERC1155 contract", function () {
     });
 
     it("Can't permit with wrong signer", async function () {
-        sig = await signMessage(other, DomainERC1155(token), TypesERC1155, permit);
+        sig = splitSignature(await signMessage(other, DomainERC1155(token), TypesERC1155, permit));
         await expect(
             token
                 .connect(other)

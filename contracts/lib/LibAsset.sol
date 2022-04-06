@@ -7,7 +7,6 @@ import "../interfaces/IERC721Royalties.sol";
 import "../interfaces/IERC20Permit.sol";
 import "../interfaces/IERC721Permit.sol";
 import "../interfaces/IERC1155Permit.sol";
-import "./LibSig.sol";
 
 library LibAsset {
     using SafeERC20Upgradeable for IERC20Permit;
@@ -33,22 +32,28 @@ library LibAsset {
         uint256 amount;
     }
 
+    struct Signature {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
+
     struct SignatureERC20 {
         uint256 amount;
         uint256 deadline;
-        LibSig.Signature sig;
+        Signature sig;
     }
 
     struct SignatureERC721 {
         bool forAll;
         uint256 tokenId;
         uint256 deadline;
-        LibSig.Signature sig;
+        Signature sig;
     }
 
     struct SignatureERC1155 {
         uint256 deadline;
-        LibSig.Signature sig;
+        Signature sig;
     }
 
     function hashAsset(Asset memory asset) internal pure returns (bytes32) {
@@ -87,6 +92,10 @@ library LibAsset {
             (receiver, value) = IERC721Royalties(asset.token).getRoyalty(asset.id);
             require(value <= MAX_ROYALTY_VALUE, "LibAsset: invalid royalty value");
         }
+    }
+
+    function getCurrency(Asset memory asset) internal pure returns (address) {
+        return (asset.assetType == AssetType.ETH) ? address(0) : asset.token;
     }
 
     function permit(

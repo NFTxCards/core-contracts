@@ -12,6 +12,7 @@ import {
 } from "./utils/permits";
 import { increaseTime, signMessage } from "./utils";
 import { Signature } from "ethers";
+import { splitSignature } from "ethers/lib/utils";
 
 describe("Test ERC721Preset contract", function () {
     let owner: SignerWithAddress, other: SignerWithAddress;
@@ -93,7 +94,9 @@ describe("Test ERC721Preset contract", function () {
                 deadline: block.timestamp + 50,
                 nonce: 0,
             };
-            sig = await signMessage(owner, DomainERC721(token), TypesERC721, permit);
+            sig = splitSignature(
+                await signMessage(owner, DomainERC721(token), TypesERC721, permit),
+            );
         });
 
         it("Nonce is basically valid", async function () {
@@ -118,7 +121,9 @@ describe("Test ERC721Preset contract", function () {
         });
 
         it("Can't permit with wrong signer", async function () {
-            sig = await signMessage(other, DomainERC721(token), TypesERC721, permit);
+            sig = splitSignature(
+                await signMessage(other, DomainERC721(token), TypesERC721, permit),
+            );
             await expect(
                 token
                     .connect(other)
@@ -136,7 +141,9 @@ describe("Test ERC721Preset contract", function () {
 
         it("Can't permit if token is not owned by signer", async function () {
             permit.owner = other.address;
-            sig = await signMessage(other, DomainERC721(token), TypesERC721, permit);
+            sig = splitSignature(
+                await signMessage(other, DomainERC721(token), TypesERC721, permit),
+            );
 
             await expect(
                 token
@@ -176,7 +183,9 @@ describe("Test ERC721Preset contract", function () {
                 deadline: block.timestamp + 50,
                 nonce: 0,
             };
-            sig = await signMessage(owner, DomainERC721(token), TypesAllERC721, permit);
+            sig = splitSignature(
+                await signMessage(owner, DomainERC721(token), TypesAllERC721, permit),
+            );
         });
 
         it("Can't permit with expired signature", async function () {
@@ -196,7 +205,9 @@ describe("Test ERC721Preset contract", function () {
         });
 
         it("Can't permit with wrong signer", async function () {
-            sig = await signMessage(other, DomainERC721(token), TypesAllERC721, permit);
+            sig = splitSignature(
+                await signMessage(other, DomainERC721(token), TypesAllERC721, permit),
+            );
             await expect(
                 token
                     .connect(other)

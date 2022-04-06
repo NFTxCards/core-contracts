@@ -57,7 +57,7 @@ type OrderToSign = {
 
 type OrderSigs = {
     permitSig: BytesLike;
-    orderSig: { v: BigNumberish; r: BytesLike; s: BytesLike };
+    orderSig: BytesLike;
 };
 
 type Order = OrderToSign & OrderSigs;
@@ -124,6 +124,9 @@ describe("Test Exchange contract", function () {
         await token.approve(exchange.address, ethers.constants.MaxUint256);
         await token.connect(other).approve(exchange.address, ethers.constants.MaxUint256);
 
+        await exchange.setCurrencyEnabled(token.address, true);
+        await exchange.setCurrencyEnabled(AddressZero, true);
+
         block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber());
     });
 
@@ -168,6 +171,15 @@ describe("Test Exchange contract", function () {
 
             await exchange.setFee(1000);
             expect(await exchange.fee()).to.equal(1000);
+        });
+
+        it("Owner and only owner can set currency enabled", async function () {
+            await expect(
+                exchange.connect(other).setCurrencyEnabled(token.address, false),
+            ).to.be.revertedWith("Ownable: caller is not the owner");
+
+            await exchange.setCurrencyEnabled(token.address, false);
+            expect(await exchange.currencyEnabled(token.address)).to.be.false;
         });
     });
 
@@ -238,7 +250,7 @@ describe("Test Exchange contract", function () {
         it("Can't match order with wrong payment", async function () {
             orderToSign.payment = {
                 assetType: AssetType.ERC721,
-                token: nft.address,
+                token: token.address,
                 id: 2,
                 amount: 0,
             };
@@ -252,6 +264,13 @@ describe("Test Exchange contract", function () {
             );
         });
 
+        it("Can't match with disabled currency", async function () {
+            await exchange.setCurrencyEnabled(token.address, false);
+            await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
+                "Exchange: payment currency not enabled",
+            );
+        });
+
         it("Can't match badly signed order", async function () {
             order = {
                 ...orderToSign,
@@ -259,7 +278,7 @@ describe("Test Exchange contract", function () {
                 orderSig: await signOrder(third, orderToSign),
             };
             await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
-                "LibSig: invalid signature",
+                "Exchange: invalid signature",
             );
         });
 

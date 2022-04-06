@@ -89,26 +89,9 @@
             "type": "bytes"
           },
           {
-            "components": [
-              {
-                "internalType": "uint8",
-                "name": "v",
-                "type": "uint8"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "r",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "s",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct LibSig.Signature",
+            "internalType": "bytes",
             "name": "orderSig",
-            "type": "tuple"
+            "type": "bytes"
           }
         ],
         "indexed": false,
@@ -210,26 +193,9 @@
             "type": "bytes"
           },
           {
-            "components": [
-              {
-                "internalType": "uint8",
-                "name": "v",
-                "type": "uint8"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "r",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "s",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct LibSig.Signature",
+            "internalType": "bytes",
             "name": "orderSig",
-            "type": "tuple"
+            "type": "bytes"
           }
         ],
         "indexed": false,
@@ -445,26 +411,9 @@
             "type": "bytes"
           },
           {
-            "components": [
-              {
-                "internalType": "uint8",
-                "name": "v",
-                "type": "uint8"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "r",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "s",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct LibSig.Signature",
+            "internalType": "bytes",
             "name": "orderSig",
-            "type": "tuple"
+            "type": "bytes"
           }
         ],
         "internalType": "struct LibOrder.Order",
@@ -475,6 +424,25 @@
     "name": "cancelOrder",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "currencyEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -610,26 +578,9 @@
             "type": "bytes"
           },
           {
-            "components": [
-              {
-                "internalType": "uint8",
-                "name": "v",
-                "type": "uint8"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "r",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "s",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct LibSig.Signature",
+            "internalType": "bytes",
             "name": "orderSig",
-            "type": "tuple"
+            "type": "bytes"
           }
         ],
         "internalType": "struct LibOrder.Order",
@@ -682,6 +633,24 @@
   {
     "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "currency",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setCurrencyEnabled",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

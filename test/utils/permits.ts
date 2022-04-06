@@ -4,6 +4,7 @@ import { Contract } from "ethers";
 import { network, ethers } from "hardhat";
 import { signMessage } from ".";
 import { ERC1155TokenMock, ERC20TokenMock, ERC721TokenMock } from "../../types";
+import { splitSignature } from "ethers/lib/utils";
 
 const chainId = network.config.chainId!;
 
@@ -94,7 +95,7 @@ export async function signPermitERC20(
     token: ERC20TokenMock,
     permit: ERC20Permit,
 ) {
-    const sig = await signMessage(signer, DomainERC20(token), TypesERC20, permit);
+    const sig = splitSignature(await signMessage(signer, DomainERC20(token), TypesERC20, permit));
     const coder = new ethers.utils.AbiCoder();
     return coder.encode(EncodingTypesERC20, [permit.value, permit.deadline, sig]);
 }
@@ -112,7 +113,7 @@ export async function signPermitERC721(
     token: ERC721TokenMock,
     permit: ERC721Permit,
 ) {
-    const sig = await signMessage(signer, DomainERC721(token), TypesERC721, permit);
+    const sig = splitSignature(await signMessage(signer, DomainERC721(token), TypesERC721, permit));
     const coder = new ethers.utils.AbiCoder();
     return coder.encode(EncodingTypesERC721, [false, permit.tokenId, permit.deadline, sig]);
 }
@@ -129,7 +130,9 @@ export async function signPermitAllERC721(
     token: ERC721TokenMock,
     permit: ERC721PermitAll,
 ) {
-    const sig = await signMessage(signer, DomainERC721(token), TypesAllERC721, permit);
+    const sig = splitSignature(
+        await signMessage(signer, DomainERC721(token), TypesAllERC721, permit),
+    );
     const coder = new ethers.utils.AbiCoder();
     return coder.encode(EncodingTypesERC721, [true, 0, permit.deadline, sig]);
 }
@@ -146,7 +149,9 @@ export async function signPermitERC1155(
     token: ERC1155TokenMock,
     permit: ERC1155Permit,
 ) {
-    const sig = await signMessage(signer, DomainERC1155(token), TypesERC1155, permit);
+    const sig = splitSignature(
+        await signMessage(signer, DomainERC1155(token), TypesERC1155, permit),
+    );
     const coder = new ethers.utils.AbiCoder();
     return coder.encode(EncodingTypesERC1155, [permit.deadline, sig]);
 }

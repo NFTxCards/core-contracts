@@ -125,26 +125,9 @@
             "type": "bytes"
           },
           {
-            "components": [
-              {
-                "internalType": "uint8",
-                "name": "v",
-                "type": "uint8"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "r",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "s",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct LibSig.Signature",
+            "internalType": "bytes",
             "name": "orderSig",
-            "type": "tuple"
+            "type": "bytes"
           }
         ],
         "internalType": "struct LibOrder.Order",
