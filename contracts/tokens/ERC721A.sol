@@ -293,10 +293,6 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable
         return tokenId < currentIndex;
     }
 
-    function _safeMint(address to, uint256 quantity) internal virtual {
-        _safeMint(to, quantity, "");
-    }
-
     /**
      * @dev Mints `quantity` tokens and transfers them to `to`.
      *
@@ -307,11 +303,7 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable
      *
      * Emits a {Transfer} event.
      */
-    function _safeMint(
-        address to,
-        uint256 quantity,
-        bytes memory _data
-    ) internal virtual {
+    function _mint(address to, uint256 quantity) internal virtual {
         uint256 startTokenId = currentIndex;
         require(to != address(0), "ERC721A: mint to the zero address");
         // We know if the first token in the batch doesn't exist, the other ones don't as well, because of serial ordering.
@@ -332,10 +324,6 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable
 
         for (uint256 i = 0; i < quantity; i++) {
             emit Transfer(address(0), to, updatedIndex);
-            require(
-                _checkOnERC721Received(address(0), to, updatedIndex, _data),
-                "ERC721A: transfer to non ERC721Receiver implementer"
-            );
             updatedIndex++;
         }
 

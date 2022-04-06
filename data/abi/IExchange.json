@@ -74,13 +74,18 @@
           },
           {
             "internalType": "uint64",
+            "name": "start",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
             "name": "expiry",
             "type": "uint64"
           },
           {
-            "internalType": "uint8",
+            "internalType": "uint256",
             "name": "nonce",
-            "type": "uint8"
+            "type": "uint256"
           },
           {
             "internalType": "bytes",

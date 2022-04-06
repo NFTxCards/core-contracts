@@ -51,6 +51,7 @@ type OrderToSign = {
         id: BigNumberish;
         amount: BigNumberish;
     };
+    start: BigNumberish;
     expiry: BigNumberish;
     nonce: BigNumberish;
 };
@@ -76,8 +77,9 @@ const TypesOrder = {
         { name: "side", type: "uint8" },
         { name: "commodity", type: "Asset" },
         { name: "payment", type: "Asset" },
+        { name: "start", type: "uint64" },
         { name: "expiry", type: "uint64" },
-        { name: "nonce", type: "uint8" },
+        { name: "nonce", type: "uint256" },
     ],
     Asset: [
         { name: "assetType", type: "uint8" },
@@ -85,12 +87,6 @@ const TypesOrder = {
         { name: "id", type: "uint256" },
         { name: "amount", type: "uint256" },
     ],
-};
-
-const badSig = {
-    v: 0,
-    r: ethers.utils.formatBytes32String("bad"),
-    s: ethers.utils.formatBytes32String("bad"),
 };
 
 describe("Test Exchange contract", function () {
@@ -209,6 +205,7 @@ describe("Test Exchange contract", function () {
                     id: 0,
                     amount: parseUnits("1"),
                 },
+                start: block.timestamp,
                 expiry: block.timestamp + 1000,
                 nonce: 1,
             };
@@ -386,6 +383,18 @@ describe("Test Exchange contract", function () {
             );
         });
 
+        it("Can't match non-started order", async function () {
+            orderToSign.start = block.timestamp + 100;
+            order = {
+                ...orderToSign,
+                permitSig: [],
+                orderSig: await signOrder(owner, orderToSign),
+            };
+            await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
+                "LibOrder: order not started",
+            );
+        });
+
         it("Can't match expired order", async function () {
             await increaseTime(1000);
             await expect(exchange.connect(other).matchOrder(order, [])).to.be.revertedWith(
@@ -446,6 +455,7 @@ describe("Test Exchange contract", function () {
                     id: 0,
                     amount: parseUnits("1000"),
                 },
+                start: block.timestamp,
                 expiry: block.timestamp + 1000,
                 nonce: 1,
             };
@@ -521,6 +531,7 @@ describe("Test Exchange contract", function () {
                     id: 0,
                     amount: parseUnits("1000"),
                 },
+                start: block.timestamp,
                 expiry: block.timestamp + 1000,
                 nonce: 1,
             };
@@ -567,6 +578,7 @@ describe("Test Exchange contract", function () {
                     id: 0,
                     amount: parseUnits("1000"),
                 },
+                start: block.timestamp,
                 expiry: block.timestamp + 1000,
                 nonce: 1,
             };
@@ -614,6 +626,7 @@ describe("Test Exchange contract", function () {
                     id: 0,
                     amount: parseUnits("1"),
                 },
+                start: block.timestamp,
                 expiry: block.timestamp + 1000,
                 nonce: 1,
             };
@@ -744,6 +757,7 @@ describe("Test Exchange contract", function () {
                     id: 0,
                     amount: parseUnits("1"),
                 },
+                start: block.timestamp,
                 expiry: block.timestamp + 1000,
                 nonce: 1,
             };
@@ -858,6 +872,7 @@ describe("Test Exchange contract", function () {
                     id: 0,
                     amount: parseUnits("1"),
                 },
+                start: block.timestamp,
                 expiry: block.timestamp + 1000,
                 nonce: 1,
             };

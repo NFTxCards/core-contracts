@@ -31,8 +31,8 @@ contract ERC721Preset is ERC721Permit, ERC721URI, ERC721Royalties, ERC721Mintabl
         return super.supportsInterface(interfaceId);
     }
 
-    function _safeMint(address to, uint256 quantity) internal override(ERC721Royalties, ERC721A) {
-        super._safeMint(to, quantity);
+    function _mint(address to, uint256 quantity) internal override(ERC721Royalties, ERC721A) {
+        super._mint(to, quantity);
     }
 
     function _baseURI() internal view override(ERC721URI, ERC721A) returns (string memory) {
