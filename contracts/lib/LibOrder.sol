@@ -9,7 +9,7 @@ library LibOrder {
     /// @notice Order hash for EIP712
     bytes32 private constant ORDER_TYPEHASH =
         keccak256(
-            "Order(address account,address taker,uint8 side,Asset commodity,Asset payment,uint64 expiry,uint8 nonce)Asset(uint8 assetType,address token,uint256 id,uint256 amount)"
+            "Order(address account,address taker,uint8 side,Asset commodity,Asset payment,uint64 start,uint64 expiry,uint256 nonce)Asset(uint8 assetType,address token,uint256 id,uint256 amount)"
         );
 
     enum OrderSide {
@@ -23,8 +23,9 @@ library LibOrder {
         OrderSide side;
         LibAsset.Asset commodity;
         LibAsset.Asset payment;
+        uint64 start;
         uint64 expiry;
-        uint8 nonce;
+        uint256 nonce;
         bytes permitSig;
         LibSig.Signature orderSig;
     }
@@ -39,6 +40,7 @@ library LibOrder {
                     order.side,
                     order.commodity.hashAsset(),
                     order.payment.hashAsset(),
+                    order.start,
                     order.expiry,
                     order.nonce
                 )
@@ -57,6 +59,7 @@ library LibOrder {
             order.payment.isPayment(order.side == OrderSide.Buy),
             "LibOrder: payment is not correct"
         );
+        require(block.timestamp >= order.start, "LibOrder: order not started");
         require(block.timestamp < order.expiry, "LibOrder: order expired");
 
         if (order.side == OrderSide.Buy) {
