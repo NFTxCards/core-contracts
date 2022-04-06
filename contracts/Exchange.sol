@@ -2,14 +2,13 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./TokenTrader.sol";
 import "./lib/LibOrder.sol";
 import "./interfaces/IERC20Permit.sol";
 import "./interfaces/IERC721Permit.sol";
 import "./interfaces/IERC1155Permit.sol";
 
-contract Exchange is OwnableUpgradeable, TokenTrader {
+contract Exchange is TokenTrader {
     using LibOrder for LibOrder.Order;
 
     uint256 public constant MAX_FEE = 2000; // 20%
