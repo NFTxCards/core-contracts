@@ -22,7 +22,7 @@ async function main() {
     const impl = await proxyAdmin.getProxyImplementation(exchange.address);
     console.log("Exchange (implementation) at:", impl);
 
-    // // Verification
+    // Verification
     // if (network.name !== "localhost" && network.name !== "hardhat") {
     //     console.log("Sleeping before verification...");
     //     await sleep(20000);
@@ -31,11 +31,6 @@ async function main() {
     //     //     address: impl.address,
     //     // });
     // }
-
-    // let exchange = await ethers.getContractAt('Exchange', '0x9Aaa6f34E13830FC7216DA90b3c99E02b4cCaBA9')
-
-    // exchange = exchange.connect(sender)
-    // await exchange.setTradeInfo('0xea4a161aae8E459213456590629c0341c821cb9F', true, ethers.utils.parseEther('0.02'))
 }
 
 main()
