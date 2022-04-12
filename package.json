@@ -7,6 +7,7 @@
         "test": "hardhat test",
         "coverage": "TS_NODE_TRANSPILE_ONLY=true hardhat coverage",
         "deploy": "hardhat run scripts/deploy.ts",
+        "test:script": "hardhat run scripts/testScript.ts",
         "deploy:token": "hardhat run scripts/deploy.token.ts",
         "eslint": "eslint --ext .ts --ignore-path .gitignore .",
         "prettier:check": "prettier --check . --config .prettierrc",
