@@ -36,7 +36,7 @@ abstract contract ERC721Royalties is ERC721A {
     // INTERNAL
 
     function _mint(address to, uint256 quantity) internal virtual override {
-        _royaltyReceivers[currentIndex] = msg.sender;
+        _royaltyReceivers[currentIndex] = to;
         super._mint(to, quantity);
     }
 
