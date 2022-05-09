@@ -96,6 +96,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xe0170dae",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xe0170dae",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "owner",
     "outputs": [

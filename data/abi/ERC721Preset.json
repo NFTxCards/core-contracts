@@ -180,6 +180,71 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x5d872091",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x5d872091",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x64e4c076",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x64e4c076",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x918b3667",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x918b3667",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xf06bcb53",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xf06bcb53",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xf9ec5562",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xf9ec5562",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "changeReceiverAtTransfer",
     "outputs": [

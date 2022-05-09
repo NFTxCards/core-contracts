@@ -203,12 +203,16 @@ describe("Test TokenTrader functionality", function () {
             expect(info.amount).to.equal(5);
         });
 
-        it("Owner and only owner can set trade info", async function () {
+        it("Owner and only owner can set trade info, arguments should be correct", async function () {
             await expect(
                 trader
                     .connect(other)
                     .setTradeInfoERC1155(multiToken.address, [1], [false], [0], [10]),
             ).to.be.revertedWith("Ownable: caller is not the owner");
+
+            await expect(
+                trader.setTradeInfoERC1155(multiToken.address, [1], [false], [0], [10, 20]),
+            ).to.be.revertedWith("TokenTrader: length mismatch");
 
             await trader.setTradeInfoERC1155(multiToken.address, [1], [false], [0], [10]);
             const info = await trader.tradeInfoERC1155(multiToken.address, 1);
