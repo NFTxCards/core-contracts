@@ -161,7 +161,7 @@ library LibAsset {
         } else if (asset.assetType == AssetType.ERC1155) {
             IERC1155Permit(asset.token).safeTransferFrom(from, to, asset.id, asset.amount, "");
         } else {
-            payable(to).transfer(asset.amount);
+            payable(to).send(asset.amount);
         }
     }
 

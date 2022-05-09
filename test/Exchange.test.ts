@@ -607,7 +607,7 @@ describe("Test Exchange contract", function () {
             multiToken = (await ERC1155TokenMockFactory.deploy(owner.address)) as ERC1155TokenMock;
             await multiToken.setApprovalForAll(exchange.address, true);
             await multiToken.connect(other).setApprovalForAll(exchange.address, true);
-            await multiToken.multipleAwardItem(owner.address, 1, 10);
+            await multiToken.mint(owner.address, 1, 10);
 
             // Sign order
             orderToSign = {

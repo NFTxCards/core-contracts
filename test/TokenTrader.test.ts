@@ -30,13 +30,22 @@ describe("Test TokenTrader functionality", function () {
             const ERC721TokenMockFactory = await ethers.getContractFactory("ERC721TokenMock");
             nft = (await ERC721TokenMockFactory.deploy(trader.address, 0)) as ERC721TokenMock;
 
-            await trader.setTradeInfoERC721(nft.address, true, parseUnits("1"));
+            await trader.setTradeInfoERC721(nft.address, true, parseUnits("1"), 5);
         });
 
         it("Can't buy with unsuficcient message value", async function () {
             await expect(
                 trader.buy({ assetType: AssetType.ERC721, token: nft.address, id: 1, amount: 1 }),
             ).to.be.revertedWith("TokenTrader: message value too low");
+        });
+
+        it("Can't buy more than remaining", async function () {
+            await expect(
+                trader.buy(
+                    { assetType: AssetType.ERC721, token: nft.address, id: 1, amount: 10 },
+                    { value: parseUnits("10") },
+                ),
+            ).to.be.revertedWith("TokenTrader: remaining amount too low");
         });
 
         it("Can't buy on disabled contract", async function () {
@@ -70,6 +79,8 @@ describe("Test TokenTrader functionality", function () {
 
             expect(await nft.ownerOf(0)).to.equal(owner.address);
             expect(await ethers.provider.getBalance(trader.address)).to.equal(parseUnits("1"));
+            const info = await trader.tradeInfoERC721(nft.address);
+            expect(info.amount).to.equal(4);
         });
 
         it("Can buy multiple ERC721 with correct arguments", async function () {
@@ -83,6 +94,8 @@ describe("Test TokenTrader functionality", function () {
             expect(await nft.ownerOf(0)).to.equal(owner.address);
             expect(await nft.ownerOf(1)).to.equal(owner.address);
             expect(await ethers.provider.getBalance(trader.address)).to.equal(parseUnits("2"));
+            const info = await trader.tradeInfoERC721(nft.address);
+            expect(info.amount).to.equal(3);
         });
 
         it("Owner and only owner can withdraw", async function () {
@@ -101,13 +114,14 @@ describe("Test TokenTrader functionality", function () {
 
         it("Owner and only owner can set trade info", async function () {
             await expect(
-                trader.connect(other).setTradeInfoERC721(nft.address, false, 0),
+                trader.connect(other).setTradeInfoERC721(nft.address, false, 0, 1),
             ).to.be.revertedWith("Ownable: caller is not the owner");
 
-            await trader.setTradeInfoERC721(nft.address, false, 0);
+            await trader.setTradeInfoERC721(nft.address, false, 0, 1);
             const info = await trader.tradeInfoERC721(nft.address);
             expect(info.enabled).to.be.false;
             expect(info.price).to.equal(0);
+            expect(info.amount).to.equal(1);
         });
     });
 
@@ -118,7 +132,13 @@ describe("Test TokenTrader functionality", function () {
             const ERC1155TokenMockFactory = await ethers.getContractFactory("ERC1155TokenMock");
             multiToken = (await ERC1155TokenMockFactory.deploy(trader.address)) as ERC1155TokenMock;
 
-            await trader.setTradeInfoERC1155(multiToken.address, 1, true, parseUnits("1"));
+            await trader.setTradeInfoERC1155(
+                multiToken.address,
+                [1],
+                [true],
+                [parseUnits("1")],
+                [10],
+            );
         });
 
         it("Can't buy disabled type", async function () {
@@ -133,6 +153,20 @@ describe("Test TokenTrader functionality", function () {
                     { value: parseUnits("5") },
                 ),
             ).to.be.revertedWith("TokenTrader: token sale not enabled");
+        });
+
+        it("Can't buy more than remaining", async function () {
+            await expect(
+                trader.buy(
+                    {
+                        assetType: AssetType.ERC1155,
+                        token: multiToken.address,
+                        id: 1,
+                        amount: 15,
+                    },
+                    { value: parseUnits("15") },
+                ),
+            ).to.be.revertedWith("TokenTrader: remaining amount too low");
         });
 
         it("Can't buy with unsuficcient message value", async function () {
@@ -161,17 +195,26 @@ describe("Test TokenTrader functionality", function () {
                     { value: parseUnits("5") },
                 ),
             ).to.emit(trader, "TokenBought");
+
+            expect(await multiToken.balanceOf(owner.address, 1)).to.equal(5);
+            expect(await ethers.provider.getBalance(trader.address)).to.equal(parseUnits("5"));
+
+            const info = await trader.tradeInfoERC1155(multiToken.address, 1);
+            expect(info.amount).to.equal(5);
         });
 
         it("Owner and only owner can set trade info", async function () {
             await expect(
-                trader.connect(other).setTradeInfoERC1155(multiToken.address, 1, false, 0),
+                trader
+                    .connect(other)
+                    .setTradeInfoERC1155(multiToken.address, [1], [false], [0], [10]),
             ).to.be.revertedWith("Ownable: caller is not the owner");
 
-            await trader.setTradeInfoERC1155(multiToken.address, 1, false, 0);
-            const info = await trader.tradeInfoERC721(multiToken.address);
+            await trader.setTradeInfoERC1155(multiToken.address, [1], [false], [0], [10]);
+            const info = await trader.tradeInfoERC1155(multiToken.address, 1);
             expect(info.enabled).to.be.false;
             expect(info.price).to.equal(0);
+            expect(info.amount).to.equal(10);
         });
     });
 });

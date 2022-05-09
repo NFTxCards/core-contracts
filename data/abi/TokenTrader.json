@@ -123,19 +123,24 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "ids",
+        "type": "uint256[]"
       },
       {
-        "internalType": "bool",
+        "internalType": "bool[]",
         "name": "enabled",
-        "type": "bool"
+        "type": "bool[]"
       },
       {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "prices",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
       }
     ],
     "name": "setTradeInfoERC1155",
@@ -158,6 +163,11 @@
       {
         "internalType": "uint256",
         "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -190,6 +200,11 @@
         "internalType": "uint256",
         "name": "price",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -213,6 +228,11 @@
       {
         "internalType": "uint256",
         "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
         "type": "uint256"
       }
     ],
