@@ -16,8 +16,8 @@ describe("Test ERC1155 contract", function () {
     this.beforeEach(async function () {
         [owner, other] = await ethers.getSigners();
 
-        const TokenFactory = await ethers.getContractFactory("ERC1155TokenMock");
-        token = (await TokenFactory.deploy(owner.address)) as ERC1155TokenMock;
+        const TokenFactory = await ethers.getContractFactory("ERC1155Preset");
+        token = (await TokenFactory.deploy("uri", owner.address)) as ERC1155TokenMock;
 
         block = await ethers.provider.getBlock(await ethers.provider.getBlockNumber());
 

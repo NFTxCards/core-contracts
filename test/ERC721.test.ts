@@ -232,39 +232,49 @@ describe("Test ERC721Preset contract", function () {
     });
 
     describe("Royalties", function () {
-        let tokenMock: ERC721TokenMock;
-
         this.beforeEach(async function () {
-            const TokenFactory = await ethers.getContractFactory("ERC721TokenMock");
-            tokenMock = (await TokenFactory.deploy(owner.address, 10)) as ERC721TokenMock;
+            const TokenFactory = await ethers.getContractFactory("ERC721Preset");
+            token = (await TokenFactory.deploy(
+                "TestToken",
+                "TT",
+                "base/",
+                owner.address,
+                10,
+                true,
+            )) as ERC721Preset;
 
-            await tokenMock.mint(owner.address, 10);
-            await tokenMock.mint(owner.address, 10);
-        });
-
-        it("Can set royalty receiver", async function () {
-            await tokenMock.setRoyaltyReceiver(2, other.address);
-            let royalty = await tokenMock.getRoyalty(2);
-            expect(royalty.receiver).to.equal(other.address);
-
-            await tokenMock.setRoyaltyReceiver(2, other.address);
-            royalty = await tokenMock.getRoyalty(2);
-            expect(royalty.receiver).to.equal(other.address);
-        });
-
-        it("Can't set royalty for non-existent", async function () {
-            await expect(tokenMock.setRoyaltyReceiver(30, other.address)).to.be.revertedWith(
-                "ERC721Royalties: set royalty receiver for nonexistent token",
-            );
+            await token.mint(owner.address, 10);
+            await token.mint(owner.address, 10);
         });
 
         it("Can't get receiver for non-existent", async function () {
-            await expect(tokenMock.getRoyalty(30)).to.be.revertedWith(
+            await expect(token.getRoyalty(30)).to.be.revertedWith(
                 "ERC721Royalties: royalty receiver query for nonexistent token",
             );
         });
 
-        it("Can query royalty for second batch", async function () {
+        it("Royalty receiver changes at transfer", async function () {
+            await token.transferFrom(owner.address, other.address, 3);
+
+            let royalty = await token.getRoyalty(3);
+            expect(royalty.receiver).to.equal(owner.address);
+
+            await token.connect(other).transferFrom(other.address, owner.address, 3);
+
+            royalty = await token.getRoyalty(3);
+            expect(royalty.receiver).to.equal(other.address);
+        });
+
+        it("Royalties in batches & set royalties", async function () {
+            const TokenFactory = await ethers.getContractFactory("ERC721TokenMock");
+            const tokenMock = (await TokenFactory.deploy(owner.address, 10)) as ERC721TokenMock;
+            await tokenMock.mint(owner.address, 10);
+            await tokenMock.mint(owner.address, 10);
+
+            await expect(tokenMock.setRoyaltyReceiver(100, other.address)).to.be.revertedWith(
+                "ERC721Royalties: set royalty receiver for nonexistent token",
+            );
+
             await tokenMock.setRoyaltyReceiver(10, ethers.constants.AddressZero);
             const royalty = await tokenMock.getRoyalty(10);
             expect(royalty.receiver).to.equal(ethers.constants.AddressZero);
