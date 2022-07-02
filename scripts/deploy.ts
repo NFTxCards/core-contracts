@@ -11,8 +11,7 @@ async function main() {
     // Deployment
     const ExchangeFactory = await ethers.getContractFactory("Exchange");
     const exchange = await upgrades.deployProxy(ExchangeFactory, [
-        // process.env.TREASURY!,
-        sender.address,
+        process.env.TREASURY!,
         process.env.FEE!,
     ]);
     await exchange.deployed();
