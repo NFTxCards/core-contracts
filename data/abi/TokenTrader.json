@@ -96,6 +96,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xa5c88ddf",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xa5c88ddf",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "owner",
     "outputs": [

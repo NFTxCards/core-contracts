@@ -160,6 +160,45 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x289537b7",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x289537b7",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x600bb3ac",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x600bb3ac",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xa3014b0c",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xa3014b0c",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "changeReceiverAtTransfer",
     "outputs": [

@@ -11,5 +11,18 @@
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xdd5f4cab",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xdd5f4cab",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
   }
 ]

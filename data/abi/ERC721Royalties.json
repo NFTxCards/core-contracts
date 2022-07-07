@@ -125,6 +125,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x289537b7",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x289537b7",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "changeReceiverAtTransfer",
     "outputs": [

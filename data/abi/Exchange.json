@@ -335,6 +335,32 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "c__0xa5c88ddf",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xa5c88ddf",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xe0a85026",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xe0a85026",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "components": [
           {
             "internalType": "address",
